@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potonow - Đăng nhập & Đăng ký</title>
+    <!-- Sử dụng font Montserrat cho giống thiết kế -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* === RESET & BIẾN MÀU SẮC === */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+      :root {
+        --bg-color: #faecd8;
+        --primary-orange: #ff6b00;
+        --primary-hover: #e56000;
+        --text-main: #333;
+        --text-muted: #888;
+        --input-bg: #f5f6f8;
+        --border-color: #e0e0e0;
+        --error-red: #d9534f;
+      }
+      body {
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      /* === CARD CONTAINER === */
+      .auth-card {
+        background: #fff;
+        width: 100%;
+        max-width: 500px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 40px 30px;
+        position: relative;
+        display: none; /* Ẩn mặc định, JS sẽ điều khiển */
+      }
+      .auth-card.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* === LOGO & HEADER === */
+      .logo-container {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .logo-icon {
+        width: 50px;
+        height: 50px;
+        border: 2px solid var(--primary-orange);
+        border-radius: 12px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .logo-icon::after {
+        content: "";
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--primary-orange);
+        border-radius: 50%;
+      }
+      .logo-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #000;
+      }
+      .header-title {
+        text-align: center;
+        color: var(--primary-orange);
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      /* === FORM CHUNG === */
+      .form-group {
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-main);
+      }
+      .required {
+        color: var(--error-red);
+      }
+      .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        background-color: var(--input-bg);
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+      }
+      .form-control:focus {
+        border-color: var(--primary-orange);
+        background-color: #fff;
+      }
+      .helper-text {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 5px;
+        display: block;
+      }
+      .error-text {
+        color: var(--error-red);
+      }
+      .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 36px;
+        cursor: pointer;
+        color: var(--text-muted);
+      }
+
+      /* === BUTTONS === */
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+        text-align: center;
+      }
+      .btn-primary {
+        background-color: var(--primary-orange);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+      .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+      }
+      .btn-outline:hover {
+        background-color: #f9f9f9;
+      }
+      .btn-google {
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      .btn-google img {
+        width: 20px;
+      }
+
+      /* === TIỆN ÍCH LOGIN === */
+      .forgot-pass {
+        text-align: right;
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+        cursor: pointer;
+      }
+      .divider {
+        text-align: center;
+        margin: 20px 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        position: relative;
+      }
+      .footer-link {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 14px;
+      }
+      .footer-link a {
+        color: var(--primary-orange);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      /* === MÀN HÌNH CHỌN ROLE === */
+      .role-cards {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      .role-card {
+        flex: 1;
+        background-color: #0b4b3e; /* Màu nền rừng cây giả lập */
+        border-radius: 12px;
+        height: 180px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .role-card:hover {
+        border-color: var(--primary-orange);
+      }
+      .role-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 15px;
+        z-index: 2;
+      }
+      .role-illustrator {
+        position: absolute;
+        bottom: -20px;
+        width: 80%;
+        height: 120px;
+        background-color: #ffcb3b; /* Hình nhân vật vàng */
+        border-radius: 50% 50% 0 0;
+      }
+
+      /* === MÀN HÌNH ĐĂNG KÝ (LỚN HƠN) === */
+      #view-register {
+        max-width: 650px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 20px;
+      }
+      .radio-group {
+        display: flex;
+        gap: 15px;
+        font-size: 13px;
+        margin-top: 10px;
+      }
+      .checkbox-group {
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+      .checkbox-group a {
+        color: var(--primary-orange);
+        text-decoration: none;
+      }
+      .btn-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      textarea.form-control {
+        resize: none;
+        height: 80px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="view-login" class="auth-card active">
+      <div class="logo-container">
+        <div class="logo-icon"></div>
+        <div class="logo-text">potonow</div>
+      </div>
+
+      <div class="form-group">
+        <label>Email đăng nhập</label>
+        <input
+          type="email"
+          id="loginEmail"
+          class="form-control"
+          placeholder="Nhập email..."
+        />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input
+          type="password"
+          id="loginPassword"
+          class="form-control"
+          placeholder="Nhập mật khẩu..."
+        />
+        <span class="password-toggle">👁️</span>
+      </div>
+
+      <div class="forgot-pass">Quên mật khẩu?</div>
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        onclick="login()"
+      >
+        Đăng nhập
+      </button>
+
+      <div class="divider">Hoặc</div>
+
+      <button class="btn btn-google">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+          alt="Google"
+        />
+        Đăng nhập với Google
+      </button>
+
+      <div class="footer-link">
+        Chưa có tài khoản?
+        <a href="#" onclick="switchView('view-role')">Đăng ký ngay!</a>
+      </div>
+    </div>
+
+    <!-- 2. MÀN HÌNH CHỌN VAI TRÒ ĐĂNG KÝ -->
+    <div id="view-role" class="auth-card">
+      <div class="logo-container">
+        <div class="logo-icon"></div>
+        <div class="logo-text">potonow</div>
+      </div>
+
+      <div class="header-title">Đăng ký và bắt đầu trải nghiệm</div>
+      <p style="text-align: center; font-size: 14px; margin-bottom: 20px">
+        Bạn đăng ký với vai trò
+      </p>
+
+      <div class="role-cards">
+        <!-- Box Khách hàng -->
+        <div
+          class="role-card"
+          onclick="alert('Chức năng đang cập nhật cho Khách!')"
+        >
+          <div class="role-title">Khách chụp hình</div>
+          <div class="role-illustrator"></div>
+        </div>
+        <!-- Box Thợ chụp -->
+        <div class="role-card" onclick="switchView('view-register')">
+          <div class="role-title">Nhiếp ảnh gia</div>
+          <div class="role-illustrator" style="background-color: #ffb703"></div>
+        </div>
+      </div>
+
+      <div class="footer-link">
+        Đã có tài khoản?
+        <a href="#" onclick="switchView('view-login')">Đăng nhập ngay!</a>
+      </div>
+    </div>
+
+    <!-- 3. MÀN HÌNH ĐĂNG KÝ NHIẾP ẢNH GIA -->
+    <div id="view-register" class="auth-card">
+      <div class="logo-container" style="margin-bottom: 15px">
+        <div class="logo-icon" style="width: 40px; height: 40px"></div>
+        <div class="logo-text" style="font-size: 20px">potonow</div>
+      </div>
+
+      <div class="header-title">Trở thành Nhiếp ảnh gia</div>
+
+      <!-- FORM ĐÃ ĐƯỢC THÊM ID VÀ BỎ INLINE SUBMIT -->
+      <form id="registerForm">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Họ và tên <span class="required">*</span></label>
+            <input
+              type="text"
+              id="regFullName"
+              class="form-control"
+              placeholder="Nhập họ và tên..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Ngày sinh</label>
+            <input type="date" id="regDob" class="form-control" />
+            <span class="helper-text">Bạn phải đủ 16 tuổi để đăng ký.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input
+              type="email"
+              id="regEmail"
+              class="form-control"
+              placeholder="Nhập email..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại <span class="required">*</span></label>
+            <input
+              type="text"
+              id="regPhone"
+              class="form-control"
+              placeholder="VD: 0987654321"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Mật khẩu <span class="required">*</span></label>
+            <input
+              type="password"
+              id="regPassword"
+              class="form-control"
+              required
+            />
+            <span class="helper-text">Mật khẩu phải từ 8 đến 32 ký tự.</span>
+          </div>
+          <div class="form-group">
+            <label>Xác nhận mật khẩu <span class="required">*</span></label>
+            <input
+              type="password"
+              id="regConfirmPassword"
+              class="form-control"
+              required
+            />
+            <span class="helper-text"
+              >Mật khẩu và Xác nhận cần trùng khớp.</span
+            >
+          </div>
+        </div>
+        <!-- End Grid 2 -->
+
+        <div class="form-group">
+          <label>Địa điểm làm việc <span class="required">*</span></label>
+          <input
+            type="text"
+            id="regLocation"
+            class="form-control"
+            placeholder="VD: Hà Nội"
+            required
+          />
+          <span class="helper-text">Chọn tối đa 3 địa điểm</span>
+        </div>
+
+        <div class="form-group">
+          <label>Số năm kinh nghiệm <span class="required">*</span></label>
+          <div class="radio-group">
+            <label
+              ><input type="radio" name="exp" value="Dưới 1 năm" checked /> Dưới
+              1 năm</label
+            >
+            <label
+              ><input type="radio" name="exp" value="Từ 1-3 năm" /> Từ 1-3
+              năm</label
+            >
+            <label
+              ><input type="radio" name="exp" value="Trên 3 năm" /> Trên 3
+              năm</label
+            >
+            <label
+              ><input type="radio" name="exp" value="Trên 5 năm" /> Trên 5
+              năm</label
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label
+            >Thiết bị chụp hình đang sử dụng
+            <span class="required">*</span></label
+          >
+          <textarea
+            id="regEquipment"
+            class="form-control"
+            placeholder="Loại thiết bị và thông số (Ví dụ: Canon 60D + Lens Canon EF 50mm f/1.4 USM)"
+            required
+          ></textarea>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="terms" required />
+          <label for="terms"
+            >Tôi đã đọc, hiểu rõ và đồng ý với
+            <a href="#">Điều khoản dịch vụ</a> của Potonow.</label
+          >
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="privacy" required />
+          <label for="privacy"
+            >Tôi đã đọc, hiểu rõ và đồng ý với
+            <a href="#">Chính sách bảo mật</a> của Potonow.</label
+          >
+        </div>
+
+        <div class="btn-group">
+          <button
+            type="button"
+            class="btn btn-outline"
+            onclick="switchView('view-role')"
+          >
+            Quay lại
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Đăng ký tài khoản
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- SCRIPT XỬ LÝ GIAO DIỆN VÀ GỌI API -->
+    <script>
+      // 1. Hàm chuyển đổi giữa các màn hình
+      function switchView(viewId) {
+        document.querySelectorAll(".auth-card").forEach((card) => {
+          card.classList.remove("active");
+        });
+        document.getElementById(viewId).classList.add("active");
+      }
+
+      async function login() {
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        if (!email || !password) {
+          alert("Vui lòng nhập email và mật khẩu.");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.message || "Đăng nhập thất bại.");
+          }
+
+          localStorage.setItem("userId", String(result.user.id));
+          localStorage.setItem("token", result.token);
+          alert("Đăng nhập thành công!");
+          window.location.href = "/pages/booking.html";
+        } catch (error) {
+          alert(error.message || "Không thể kết nối tới máy chủ.");
+        }
+      }
+
+      // 2. Lắng nghe sự kiện Submit Form Đăng ký
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault(); // Ngăn trình duyệt tự động load lại trang
+
+          // Lấy và kiểm tra mật khẩu
+          const password = document.getElementById("regPassword").value;
+          const confirmPassword =
+            document.getElementById("regConfirmPassword").value;
+
+          if (password !== confirmPassword) {
+            alert("Mật khẩu xác nhận không khớp! Vui lòng nhập lại.");
+            return;
+          }
+
+          // Lấy giá trị của Radio button Kinh nghiệm đang được check
+          const experienceValue = document.querySelector(
+            'input[name="exp"]:checked',
+          ).value;
+
+          // Đóng gói toàn bộ dữ liệu vào một Object
+          const formData = {
+            fullName: document.getElementById("regFullName").value,
+            dob: document.getElementById("regDob").value,
+            email: document.getElementById("regEmail").value,
+            phone: document.getElementById("regPhone").value,
+            password: password,
+            location: document.getElementById("regLocation").value,
+            experience: experienceValue,
+            equipment: document.getElementById("regEquipment").value,
+          };
+
+          // Gửi API bằng Fetch
+          try {
+            // Thay URL dưới đây bằng endpoint thực tế trên server Node.js của bạn
+            const response = await fetch(
+              "http://localhost:5000/api/auth/register",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+              },
+            );
+
+            const result = await response.json();
+
+            if (response.ok) {
+              alert("Đăng ký thành công! Bạn có thể tiến hành đăng nhập.");
+              this.reset(); // Xóa trắng dữ liệu trên form
+              switchView("view-login"); // Tự động chuyển về màn hình đăng nhập
+            } else {
+              alert(
+                "Đăng ký thất bại: " + (result.message || "Lỗi không xác định"),
+              );
+            }
+          } catch (error) {
+            console.error("Lỗi khi kết nối tới Server:", error);
+            alert(
+              "Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại Backend!",
+            );
+          }
+        });
+    </script>
+  </body>
+</html>
