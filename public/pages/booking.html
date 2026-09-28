@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potonow | Đặt lịch chụp hình</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/booking.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span>potonow</span>
+        </div>
+
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#">Về Potonow</a>
+          <a href="#">Nhiếp ảnh gia</a>
+          <a href="#">Danh sách chụp</a>
+          <a href="#">Đặt lịch</a>
+          <a href="#">Sự kiện</a>
+          <a href="#">Blogs</a>
+        </nav>
+
+        <button class="login-btn" type="button">Đăng nhập/Đăng ký</button>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="booking-card">
+        <div class="booking-layout">
+          <div class="left-panel">
+            <div class="section">
+              <h2 class="section-title">Chọn gói chụp</h2>
+              <div id="packageGrid" class="package-grid"></div>
+            </div>
+
+            <div class="section">
+              <h2 class="section-title">Ngày chụp dự kiến</h2>
+              <div class="calendar-box">
+                <div class="calendar-header">
+                  <button id="prevMonthBtn" class="calendar-nav" type="button" aria-label="Tháng trước">‹</button>
+                  <span id="monthLabel">Tháng</span>
+                  <button id="nextMonthBtn" class="calendar-nav" type="button" aria-label="Tháng sau">›</button>
+                </div>
+
+                <div class="weekdays">
+                  <div class="weekday">T2</div>
+                  <div class="weekday">T3</div>
+                  <div class="weekday">T4</div>
+                  <div class="weekday">T5</div>
+                  <div class="weekday">T6</div>
+                  <div class="weekday">T7</div>
+                  <div class="weekday">CN</div>
+                </div>
+
+                <div id="calendarDays" class="calendar-days"></div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Chọn thời gian chụp</label>
+              <div id="timeGrid" class="time-grid"></div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="location">Địa điểm</label>
+              <input id="location" class="input" type="text" placeholder="Nhập địa điểm chụp" />
+            </div>
+
+            <div class="field-group extra-block">
+              <h3 class="section-subtitle">Chi tiết buổi chụp</h3>
+
+              <div class="field-row">
+                <label class="field-label" for="shootTitle">Tiêu đề buổi chụp <span class="required">*</span></label>
+                <input id="shootTitle" class="input" type="text" placeholder="Chụp concept thiếu nữ bên bờ hoa huệ" />
+              </div>
+
+              <div class="field-row">
+                <label class="field-label" for="shootDescription">Nội dung buổi chụp <span class="required">*</span></label>
+                <textarea id="shootDescription" class="textarea" placeholder="Mình muốn chụp concept thiếu nữ bên bờ hoa huệ ở quán cafe"></textarea>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Dịch vụ đi kèm</label>
+              <div class="check-list">
+                <label class="check-item">
+                  <input class="add-on" type="checkbox" value="makeup-hair" checked />
+                  <span>Make-up + Làm tóc</span>
+                </label>
+                <label class="check-item">
+                  <input class="add-on" type="checkbox" value="studio-rental" />
+                  <span>Thuê studio</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="field-group budget-block">
+              <label class="field-label">Chi phí mong muốn <span class="required">*</span></label>
+
+              <div class="budget-card">
+                <div class="budget-label">
+                  <div class="avatar">😊</div>
+                  <div>
+                    <strong>Trợ lý Popo</strong>
+                    <small>Buổi chụp này sẽ có gợi ý làm cho bạn.</small>
+                  </div>
+                </div>
+
+                <div class="budget-range-row">
+                  <div class="range-field">
+                    <label for="minBudget">Từ (VNĐ)</label>
+                    <input id="minBudget" class="input" type="number" value="900000" min="0" />
+                  </div>
+                  <div class="range-field">
+                    <label for="maxBudget">Đến (VNĐ)</label>
+                    <input id="maxBudget" class="input" type="number" value="1700000" min="0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Ảnh minh họa</label>
+              <div class="upload-box">
+                <input id="sampleImage" type="file" accept="image/*" hidden />
+                <label for="sampleImage" class="upload-label">
+                  <span class="upload-icon">⬆</span>
+                  <span>Kéo file vào đây</span>
+                  <small>hoặc nhấn vào đây để tải lên</small>
+                </label>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="notes">Ghi chú</label>
+              <textarea id="notes" class="textarea" placeholder="Ví dụ: muốn chụp ngoài trời, có phụ kiện, thời gian sáng sớm..."></textarea>
+            </div>
+          </div>
+
+          <aside class="right-panel">
+            <div class="summary-box">
+              <div class="summary-header">
+                <div class="summary-title">Tiêu đề gói chụp</div>
+                <div id="selectedPackagePrice" class="summary-price">0 ₫</div>
+              </div>
+
+              <div class="summary-card">
+                <div class="summary-line">
+                  <span>Gói chụp</span>
+                  <strong id="selectedPackageName">Cả nhân</strong>
+                </div>
+                <div class="summary-line">
+                  <span>Ngày chụp</span>
+                  <strong id="selectedDate">Chưa chọn</strong>
+                </div>
+                <div class="summary-line">
+                  <span>Giờ chụp</span>
+                  <strong id="selectedTime">Chưa chọn</strong>
+                </div>
+                <div class="summary-line">
+                  <span>Địa điểm</span>
+                  <strong id="selectedLocation">Chưa nhập</strong>
+                </div>
+              </div>
+
+              <button id="submitBookingBtn" class="submit-btn" type="button">Xác nhận yêu cầu</button>
+              <div id="validationText" class="validation-text"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="/js/booking.js"></script>
+  </body>
+</html>

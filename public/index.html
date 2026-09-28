@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Potonow - nền tảng đặt lịch chụp hình nhanh chóng, tiện lợi và phù hợp túi tiền." />
+    <title>Potonow | Đặt lịch chụp hình</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <div class="header-inner">
+        <a class="brand" href="/" aria-label="Potonow trang chủ">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>potonow</span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+
+        <nav class="main-nav" aria-label="Điều hướng chính">
+          <a href="#about">Về Potonow</a>
+          <a href="#photographers">Nhiếp ảnh gia</a>
+          <a href="#categories">Danh sách buổi chụp</a>
+          <a href="/pages/booking.html">Đặt lịch</a>
+          <a href="#reasons">Sự kiện</a>
+          <a href="#footer">Blogs</a>
+          <button class="language-button" type="button" aria-label="Ngôn ngữ hiện tại: Tiếng Việt">VI <span>🇻🇳</span></button>
+          <a class="header-cta" href="/pages/auth.html">Đăng nhập/Đăng ký</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-section" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <p class="eyebrow">KHOẢNH KHẮC CỦA RIÊNG BẠN</p>
+          <h1 id="hero-title">Đặt lịch chụp hình<br /><strong>cùng Potonow</strong></h1>
+          <p class="hero-copy">Tìm nhiếp ảnh gia phù hợp và lưu giữ những điều đáng nhớ theo cách của bạn.</p>
+          <a class="primary-button hero-button" href="/pages/booking.html">Bắt đầu đặt lịch <span aria-hidden="true">→</span></a>
+        </div>
+
+        <form class="quick-search" id="quickSearch">
+          <label class="search-field">
+            <span class="field-icon" aria-hidden="true">▣</span>
+            <span><small>Thể loại</small><select id="searchCategory"><option value="">Bạn muốn chụp gì?</option><option>Cá nhân</option><option>Cặp đôi</option><option>Gia đình</option><option>Sự kiện</option></select></span>
+          </label>
+          <label class="search-field">
+            <span class="field-icon" aria-hidden="true">◷</span>
+            <span><small>Thời gian</small><input id="searchDate" type="date" /></span>
+          </label>
+          <label class="search-field">
+            <span class="field-icon" aria-hidden="true">⌖</span>
+            <span><small>Địa điểm</small><input id="searchLocation" type="text" placeholder="Hà Nội, TP.HCM..." /></span>
+          </label>
+          <button class="search-button" type="submit">Đặt lịch <span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+
+      <section class="about-section section-shell" id="about">
+        <div class="about-image image-frame">
+          <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1100&q=85" alt="Hai người bạn đang mỉm cười trong buổi chụp hình" />
+        </div>
+        <div class="about-content">
+          <p class="section-kicker">CÂU CHUYỆN POTONOW</p>
+          <h2>Chụp là thích!<br /><em>Thích là chụp!</em></h2>
+          <div class="copy-panel">
+            <p>Bạn đang muốn sở hữu một bộ ảnh độc đáo và phù hợp túi tiền?</p>
+            <p>Bạn đang phân vân giữa vô vàn những dịch vụ chụp hình trôi nổi trên thị trường hiện nay?</p>
+            <p>Đừng lo, đã có Potonow. Nền tảng giúp bạn kết nối với những nhiếp ảnh gia phù hợp, minh bạch và tận tâm.</p>
+            <a class="outline-button" href="#photographers">Chuyện của Potonow <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="reasons-section section-shell" id="reasons">
+        <div class="reasons-heading">
+          <p class="section-kicker">VÌ SAO CHỌN CHÚNG TÔI</p>
+          <h2>3 lý do<br /><em>để đặt lịch chụp ở Potonow</em></h2>
+        </div>
+        <div class="reason-grid">
+          <article class="reason-card"><span class="reason-icon">✦</span><h3>Đảm bảo chất lượng dịch vụ</h3><p>Potonow kiểm duyệt thông tin và chất lượng của các nhiếp ảnh gia để bạn có trải nghiệm an tâm nhất.</p></article>
+          <article class="reason-card"><span class="reason-icon">✓</span><h3>Tổ chức buổi chụp nhanh chóng</h3><p>Kết nối với nhiếp ảnh gia phù hợp với nhu cầu của bạn trong thời gian ngắn nhất.</p></article>
+          <article class="reason-card"><span class="reason-icon">◷</span><h3>Quy trình cực đơn giản</h3><p>Từ lúc đặt lịch đến khi nhận ảnh, mọi bước đều rõ ràng, thuận tiện và dễ theo dõi.</p></article>
+        </div>
+        <div class="reasons-image image-frame"><img src="https://images.unsplash.com/photo-1516726817505-f5ed825624d8?auto=format&fit=crop&w=1000&q=85" alt="Nhóm bạn tạo dáng trong một buổi chụp" /></div>
+      </section>
+
+      <section class="categories-section section-shell" id="categories">
+        <div class="section-heading centered"><p class="section-kicker">TÌM CẢM HỨNG CHO BẠN</p><h2>Đa dạng thể loại chụp hình</h2></div>
+        <div class="category-grid">
+          <a class="category-card" href="/pages/booking.html"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=85" alt="Chụp ảnh cá nhân" /><span>Cá nhân</span></a>
+          <a class="category-card" href="/pages/booking.html"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=85" alt="Chụp ảnh cặp đôi" /><span>Cặp đôi</span></a>
+          <a class="category-card" href="/pages/booking.html"><img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=600&q=85" alt="Chụp ảnh gia đình" /><span>Gia đình</span></a>
+          <a class="category-card" href="/pages/booking.html"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=85" alt="Chụp ảnh nhóm bạn" /><span>Nhóm</span></a>
+          <a class="category-card" href="/pages/booking.html"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=85" alt="Chụp ảnh sinh viên" /><span>Sinh viên</span></a>
+        </div>
+      </section>
+
+      <section class="photographers-section section-shell" id="photographers">
+        <div class="section-heading photographer-heading"><div><p class="section-kicker">GẶP GỠ NHỮNG NGƯỜI KỂ CHUYỆN</p><h2>Nhiếp ảnh gia có thể bạn yêu thích</h2></div><div class="carousel-controls"><button id="prevPhotographer" type="button" aria-label="Nhiếp ảnh gia trước">←</button><button id="nextPhotographer" type="button" aria-label="Nhiếp ảnh gia tiếp theo">→</button></div></div>
+        <div class="photographer-grid" id="photographerGrid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="footer">
+      <div class="footer-inner"><div><a class="brand footer-brand" href="/">potonow</a><p>Lưu giữ những khoảnh khắc<br />theo cách của riêng bạn.</p></div><div><h3>Khám phá</h3><a href="#about">Về Potonow</a><a href="#categories">Thể loại chụp</a><a href="#photographers">Nhiếp ảnh gia</a></div><div><h3>Hỗ trợ</h3><a href="/pages/auth.html">Đăng nhập/Đăng ký</a><a href="/pages/booking.html">Đặt lịch chụp</a><a href="mailto:hello@potonow.vn">hello@potonow.vn</a></div></div>
+      <div class="footer-bottom"><span>© 2026 Potonow. All rights reserved.</span><span>Made for meaningful moments.</span></div>
+    </footer>
+
+    <a class="floating-contact messenger" href="https://m.me/" aria-label="Liên hệ qua Messenger">✦</a>
+    <a class="floating-contact zalo" href="https://zalo.me/" aria-label="Liên hệ qua Zalo">Z</a>
+    <button class="back-to-top" id="backToTop" type="button" aria-label="Về đầu trang">↑</button>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/js/home.js"></script>
+  </body>
+</html>
