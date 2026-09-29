@@ -1,0 +1,199 @@
+#view-customer-register {
+  width: 364px;
+  max-width: 100%;
+  padding: 26px 20px 20px;
+}
+
+#view-customer-register .customer-logo {
+  margin-bottom: 18px;
+}
+
+#view-customer-register .logo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+
+#view-customer-register .logo-icon::after {
+  width: 18px;
+  height: 18px;
+}
+
+#view-customer-register .logo-text {
+  font-size: 15px;
+}
+
+#view-customer-register .header-title {
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+
+#view-customer-register .customer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 10px;
+}
+
+#view-customer-register .form-group {
+  min-width: 0;
+  margin-bottom: 12px;
+}
+
+#view-customer-register .form-group label {
+  margin-bottom: 4px;
+  font-size: 8px;
+}
+
+#view-customer-register .form-control {
+  min-width: 0;
+  height: 25px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #edf2f7;
+  font-size: 9px;
+}
+
+#view-customer-register .form-control:focus {
+  border-color: var(--primary-orange);
+  background: #fff;
+}
+
+#view-customer-register input[type="date"] {
+  color: #89919c;
+}
+
+#view-customer-register .helper-text {
+  min-height: 12px;
+  margin-top: 4px;
+  font-size: 7px;
+  line-height: 1.35;
+}
+
+#view-customer-register .phone-control {
+  display: flex;
+  height: 25px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #edf2f7;
+}
+
+#view-customer-register .country-code {
+  width: 34px;
+  flex: 0 0 34px;
+  padding: 0 0 0 7px;
+  border: 0;
+  background: transparent;
+  color: #283345;
+  font-size: 8px;
+}
+
+#view-customer-register .phone-control .form-control {
+  height: 25px;
+  padding-left: 2px;
+  border: 0;
+  background: transparent;
+}
+
+#view-customer-register .phone-control .form-control::placeholder {
+  color: #929ba7;
+  opacity: 1;
+}
+
+#view-customer-register .password-field {
+  position: relative;
+}
+
+#view-customer-register .password-field .form-control {
+  padding-right: 30px;
+}
+
+#view-customer-register .customer-password-toggle {
+  position: absolute;
+  top: 18px;
+  right: 7px;
+  display: grid;
+  width: 18px;
+  height: 20px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #394656;
+  cursor: pointer;
+}
+
+#view-customer-register .customer-password-toggle svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+#view-customer-register .customer-consents {
+  margin-top: 1px;
+}
+
+#view-customer-register .checkbox-group {
+  align-items: flex-start;
+  gap: 5px;
+  margin-bottom: 4px;
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+#view-customer-register .checkbox-group input {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  margin: 1px 0 0;
+  accent-color: var(--primary-orange);
+}
+
+#view-customer-register .checkbox-group a {
+  color: var(--primary-orange);
+}
+
+#view-customer-register .customer-status {
+  margin-top: 8px;
+  color: var(--error-red);
+  font-size: 10px;
+}
+
+#view-customer-register .customer-status:empty {
+  display: none;
+}
+
+#view-customer-register .customer-actions {
+  gap: 10px;
+  margin-top: 6px;
+}
+
+#view-customer-register .customer-actions .btn {
+  min-width: 0;
+  height: 25px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+
+#view-customer-register .customer-actions .btn-primary {
+  background: linear-gradient(100deg, #ffa98b, #ffd18a);
+}
+
+#view-customer-register .customer-actions .btn-primary:hover {
+  background: linear-gradient(100deg, #ff9673, #ffc46f);
+}
+
+@media (max-width: 420px) {
+  #view-customer-register {
+    padding: 24px 16px 18px;
+  }
+
+  #view-customer-register .customer-grid {
+    gap: 0 8px;
+  }
+}

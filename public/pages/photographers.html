@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potonow | Nhiếp ảnh gia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/photographers.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a
+          class="brand"
+          href="/pages/photographers.html"
+          aria-label="Potonow trang chủ"
+        >
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>potonow</span>
+        </a>
+
+        <nav class="nav" aria-label="Điều hướng chính">
+          <a href="#">Về Potonow</a>
+          <a class="active" href="/pages/photographers.html">Nhiếp ảnh gia</a>
+          <a href="#">Danh Sách Buổi Chụp</a>
+          <a href="/pages/booking.html">Đặt Lịch</a>
+          <a href="#">Sự Kiện</a>
+          <a href="#">Blogs</a>
+        </nav>
+
+        <div class="topbar-actions">
+          <button
+            class="language-btn"
+            type="button"
+            aria-label="Ngôn ngữ tiếng Việt"
+          >
+            VI <span>🇻🇳</span>
+          </button>
+          <a class="login-btn" href="/pages/auth.html">Đăng nhập/Đăng ký</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-heading">
+        <div>
+          <h1>Nhiếp ảnh gia Potonow</h1>
+          <p>
+            Bạn thích Nhiếp ảnh gia nào? Nhấn vào hồ sơ Nhiếp ảnh gia để xem
+            thông tin chi tiết và đặt lịch ngay nhé!
+          </p>
+        </div>
+        <div class="toolbar">
+          <label class="search-box">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Tìm kiếm nhiếp ảnh gia"
+              autocomplete="off"
+            />
+          </label>
+          <label class="location-filter">
+            <span aria-hidden="true">⌖</span>
+            <select id="locationSelect" aria-label="Lọc theo khu vực">
+              <option value="">Bộ lọc</option>
+              <option value="Hà Nội">Hà Nội</option>
+              <option value="Quảng Ninh">Quảng Ninh</option>
+              <option value="Bắc Ninh">Bắc Ninh</option>
+              <option value="Hưng Yên">Hưng Yên</option>
+              <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="sort-row" aria-label="Sắp xếp danh sách">
+        <button class="sort-btn active" type="button" data-sort="newest">
+          <span>☷</span> Mới cập nhật
+        </button>
+        <button class="sort-btn" type="button" data-sort="bookings">
+          <span>☷</span> Số buổi chụp
+        </button>
+        <button class="sort-btn" type="button" data-sort="likes">
+          <span>♡</span> Số lượt yêu thích
+        </button>
+        <button class="sort-btn" type="button" data-sort="rating">
+          <span>≡</span> Số điểm đánh giá
+        </button>
+      </section>
+
+      <section
+        id="photographerGrid"
+        class="photographer-grid"
+        aria-live="polite"
+      ></section>
+      <p id="emptyState" class="empty-state" hidden>
+        Chưa tìm thấy nhiếp ảnh gia phù hợp.
+      </p>
+
+      <nav class="pagination" aria-label="Phân trang">
+        <button
+          id="firstPageBtn"
+          class="page-arrow"
+          type="button"
+          aria-label="Trang đầu"
+        >
+          «
+        </button>
+        <button
+          id="prevPageBtn"
+          class="page-arrow"
+          type="button"
+          aria-label="Trang trước"
+        >
+          ‹
+        </button>
+        <span id="pageIndicator" class="page-indicator">1/1</span>
+        <button
+          id="nextPageBtn"
+          class="page-arrow"
+          type="button"
+          aria-label="Trang sau"
+        >
+          ›
+        </button>
+        <button
+          id="lastPageBtn"
+          class="page-arrow"
+          type="button"
+          aria-label="Trang cuối"
+        >
+          »
+        </button>
+        <label class="page-size"
+          >Đến:
+          <select id="pageSizeSelect" aria-label="Số hồ sơ mỗi trang">
+            <option value="6">6</option>
+            <option value="9">9</option>
+            <option value="12">12</option>
+          </select>
+        </label>
+      </nav>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/js/photographers.js"></script>
+  </body>
+</html>
