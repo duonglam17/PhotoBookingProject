@@ -1,52 +1,25 @@
-const packages = [
-  {
-    id: 1,
-    name: 'Cá nhân',
-    price: 900000,
-    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 2,
-    name: 'Cặp đôi',
-    price: 1700000,
-    image: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 3,
-    name: 'Gia đình',
-    price: 3000000,
-    image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 4,
-    name: 'Trẻ em',
-    price: 1500000,
-    image: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 5,
-    name: 'Sự kiện',
-    price: 4200000,
-    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 6,
-    name: 'Studio',
-    price: 2400000,
-    image: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80',
-  },
-];
+let packages = [];
+
+const packageImages = {
+  'cá nhân': 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80',
+  'cặp đôi': 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=900&q=80',
+  'gia đình': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80',
+  'trẻ em': 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80',
+  'sự kiện': 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
+  studio: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80',
+};
 
 const timeSlots = [
   '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
 ];
 
 const state = {
-  selectedPackageId: 1,
+  selectedPackageId: null,
   selectedDate: '',
   selectedTime: '',
   calendarMonth: new Date().getMonth(),
   calendarYear: new Date().getFullYear(),
+  photographerId: Number(new URLSearchParams(window.location.search).get('photographerId')) || null,
 };
 
 const packageGrid = document.getElementById('packageGrid');
@@ -70,6 +43,9 @@ const fieldDate = document.getElementById('selectedDate');
 const fieldTime = document.getElementById('selectedTime');
 const fieldLocation = document.getElementById('selectedLocation');
 const currentUserId = Number(localStorage.getItem('userId'));
+const currentUserRole = localStorage.getItem('userRole');
+const sampleImageInput = document.getElementById('sampleImage');
+let referenceImageUrl = '';
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('vi-VN', {
@@ -108,14 +84,23 @@ function getCurrentMonthDays(year, month) {
 }
 
 function renderPackages() {
+  if (!packages.length) {
+    packageGrid.innerHTML = '<p class="empty-packages">Chưa có gói chụp đang hoạt động.</p>';
+    return;
+  }
+
+  if (!packages.some((pkg) => pkg.id === state.selectedPackageId)) {
+    state.selectedPackageId = packages[0].id;
+  }
+
   packageGrid.innerHTML = packages
     .map(
       (pkg) => `
         <button type="button" class="package-item ${pkg.id === state.selectedPackageId ? 'active' : ''}" data-package-id="${pkg.id}">
           <div class="package-thumb">
-            <img src="${pkg.image}" alt="${pkg.name}" />
+            <img src="${packageImages[String(pkg.name).toLocaleLowerCase('vi-VN')] || packageImages.studio}" alt="${escapeHtml(pkg.name)}" />
           </div>
-          <div class="package-name">${pkg.name}</div>
+          <div class="package-name">${escapeHtml(pkg.name)}</div>
           <div class="package-price">${formatCurrency(pkg.price)}</div>
         </button>
       `
@@ -129,6 +114,29 @@ function renderPackages() {
       updateSummary();
     });
   });
+}
+
+async function loadPackages() {
+  packageGrid.innerHTML = '<p class="empty-packages">Đang tải gói chụp...</p>';
+  try {
+    const response = await fetch('/api/packages');
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || 'Không thể tải gói chụp.');
+    packages = result.data.map((pkg) => ({ ...pkg, id: Number(pkg.id), price: Number(pkg.price) }));
+    renderPackages();
+    updateSummary();
+  } catch (error) {
+    packageGrid.innerHTML = `<p class="empty-packages">${escapeHtml(error.message || 'Không thể tải gói chụp.')}</p>`;
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 function renderCalendar() {
@@ -186,9 +194,9 @@ function renderTimeSlots() {
 }
 
 function updateSummary() {
-  const selectedPackage = packages.find((pkg) => pkg.id === state.selectedPackageId) || packages[0];
-  fieldPackageName.textContent = selectedPackage.name;
-  fieldPackagePrice.textContent = formatCurrency(selectedPackage.price);
+  const selectedPackage = packages.find((pkg) => pkg.id === state.selectedPackageId);
+  fieldPackageName.textContent = selectedPackage?.name || 'Chưa có gói';
+  fieldPackagePrice.textContent = selectedPackage ? formatCurrency(selectedPackage.price) : formatCurrency(0);
 
   fieldDate.textContent = state.selectedDate ? new Date(state.selectedDate).toLocaleDateString('vi-VN') : 'Chưa chọn';
   fieldTime.textContent = state.selectedTime || 'Chưa chọn';
@@ -204,8 +212,13 @@ function validateBookingForm() {
   const hasDescription = shootDescriptionInput.value.trim();
   const hasValidBudget = Number(minBudgetInput.value || 0) > 0 && Number(maxBudgetInput.value || 0) > 0;
 
-  if (!Number.isInteger(currentUserId) || currentUserId <= 0) {
+  if (!Number.isInteger(currentUserId) || currentUserId <= 0 || !localStorage.getItem('token')) {
     validationText.textContent = 'Vui lòng đăng nhập trước khi đặt lịch.';
+    return false;
+  }
+
+  if (currentUserRole !== 'client') {
+    validationText.textContent = 'Chỉ tài khoản khách hàng mới có thể đặt lịch.';
     return false;
   }
 
@@ -262,7 +275,6 @@ async function submitBooking() {
       .map((input) => input.value);
 
     const payload = {
-      userId: currentUserId,
       packageId: state.selectedPackageId,
       bookingDate: state.selectedDate,
       startTime: state.selectedTime,
@@ -273,12 +285,15 @@ async function submitBooking() {
       maxBudget: Number(maxBudgetInput.value || 0),
       addOns,
       notes: notesInput.value.trim(),
+      photographerId: state.photographerId,
+      referenceImage: referenceImageUrl,
     };
 
     const response = await fetch('/api/bookings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
       body: JSON.stringify(payload),
     });
@@ -297,6 +312,8 @@ async function submitBooking() {
     shootDescriptionInput.value = '';
     minBudgetInput.value = '900000';
     maxBudgetInput.value = '1700000';
+    referenceImageUrl = '';
+    sampleImageInput.value = '';
     state.selectedDate = '';
     state.selectedTime = '';
     renderCalendar();
@@ -340,7 +357,30 @@ maxBudgetInput.addEventListener('input', () => {
 });
 submitBtn.addEventListener('click', submitBooking);
 
-renderPackages();
+sampleImageInput.addEventListener('change', async () => {
+  const file = sampleImageInput.files[0];
+  if (!file) {
+    referenceImageUrl = '';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('image', file);
+  showToast('Đang tải ảnh minh họa...');
+  try {
+    const response = await fetch('/api/upload', { method: 'POST', body: formData });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Không thể tải ảnh lên.');
+    referenceImageUrl = result.url;
+    showToast('Đã tải ảnh minh họa lên.');
+  } catch (error) {
+    sampleImageInput.value = '';
+    referenceImageUrl = '';
+    showToast(error.message || 'Không thể tải ảnh lên.', 'error');
+  }
+});
+
+loadPackages();
 renderCalendar();
 renderTimeSlots();
 updateSummary();

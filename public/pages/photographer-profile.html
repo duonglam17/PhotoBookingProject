@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Xem hồ sơ và thông tin nhiếp ảnh gia trên Potonow." />
+    <title>Hồ sơ nhiếp ảnh gia | Potonow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/photographer-profile.css" />
+    <link rel="stylesheet" href="/css/account-header.css" />
+  </head>
+  <body>
+    <header class="profile-topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/" aria-label="Potonow trang chủ">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>potonow</span>
+        </a>
+        <nav class="main-nav" aria-label="Điều hướng chính">
+          <a href="/">Về Potonow</a>
+          <a class="active" href="/pages/photographers.html">Nhiếp ảnh gia</a>
+          <a href="/pages/my-bookings.html">Lịch đặt của tôi</a>
+          <a href="/pages/booking.html">Đặt lịch</a>
+          <a href="/pages/blogs.html">Blogs</a>
+        </nav>
+        <a class="account-link" data-account-link href="/pages/auth.html">Đăng nhập</a>
+      </div>
+    </header>
+
+    <main class="profile-page" id="profilePage" aria-busy="true">
+      <div class="profile-notice" id="profileNotice" hidden>
+        <span class="notice-mark" aria-hidden="true">i</span>
+        <p id="profileNoticeText">Hồ sơ này đang chờ Potonow xác minh thông tin.</p>
+      </div>
+
+      <section class="profile-cover" aria-label="Ảnh bìa nhiếp ảnh gia">
+        <img id="coverImage" class="cover-image" alt="Ảnh bìa của nhiếp ảnh gia" />
+        <div class="cover-shade"></div>
+        <a class="back-link" href="/pages/photographers.html"><span aria-hidden="true">←</span> Tất cả nhiếp ảnh gia</a>
+      </section>
+
+      <section class="profile-heading" aria-label="Thông tin nhiếp ảnh gia">
+        <div class="avatar-frame">
+          <img id="avatarImage" class="profile-avatar" alt="Ảnh đại diện nhiếp ảnh gia" />
+          <span id="avatarFallback" class="avatar-fallback" hidden></span>
+        </div>
+        <div class="identity-copy">
+          <p class="eyebrow">NHIẾP ẢNH GIA POTONOW</p>
+          <h1 id="photographerName">Đang tải hồ sơ...</h1>
+          <div class="identity-meta">
+            <span id="experienceLabel"></span>
+            <span class="meta-dot" aria-hidden="true"></span>
+            <span id="locationLabel"></span>
+          </div>
+        </div>
+        <a id="bookButton" class="book-button" href="#" aria-disabled="true">
+          <span aria-hidden="true">＋</span> Đặt lịch chụp
+        </a>
+      </section>
+
+      <div id="profileError" class="profile-error" role="status" hidden>
+        <h2>Chưa thể tải hồ sơ</h2>
+        <p id="profileErrorMessage"></p>
+        <a href="/pages/photographers.html">Quay lại danh sách nhiếp ảnh gia</a>
+      </div>
+
+      <div class="profile-layout" id="profileContent" hidden>
+        <aside class="profile-aside">
+          <section class="about-block">
+            <h2>Thiết bị chụp</h2>
+            <p id="photographerEquipment"></p>
+          </section>
+          <section class="aside-section">
+            <h2>Khu vực hoạt động</h2>
+            <div id="locationTags" class="tag-list"></div>
+          </section>
+          <section class="aside-section">
+            <h2>Kinh nghiệm</h2>
+            <p id="experienceDetail" class="detail-copy"></p>
+          </section>
+          <a id="portfolioLink" class="portfolio-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Xem portfolio bên ngoài <span aria-hidden="true">↗</span></a>
+          <section class="aside-section stats-section" aria-label="Thống kê">
+            <div class="stat-item"><strong id="bookingCount">0</strong><span>buổi chụp</span></div>
+            <div class="stat-item"><strong id="reviewCountAside">0</strong><span>đánh giá</span></div>
+          </section>
+        </aside>
+
+        <section class="work-section">
+          <div class="work-heading">
+            <div class="profile-tabs" role="tablist" aria-label="Nội dung hồ sơ">
+              <button class="profile-tab active" id="photosTab" type="button" role="tab" aria-selected="true" aria-controls="photosPanel" data-panel="photosPanel">
+                <span aria-hidden="true">▧</span> Ảnh đã chụp
+              </button>
+              <button class="profile-tab" id="reviewsTab" type="button" role="tab" aria-selected="false" aria-controls="reviewsPanel" data-panel="reviewsPanel">
+                <span aria-hidden="true">☆</span> Đánh giá
+                <span id="reviewCountLabel" class="review-count">0</span>
+              </button>
+            </div>
+            <a id="secondaryBookButton" class="small-book-link" href="#">Đặt lịch <span aria-hidden="true">→</span></a>
+          </div>
+
+          <section class="tab-panel photo-panel" id="photosPanel" role="tabpanel" aria-labelledby="photosTab">
+            <div class="portfolio-intro">
+              <div>
+                <h2>Portfolio</h2>
+                <p>Những khoảnh khắc được lưu giữ qua ống kính.</p>
+              </div>
+              <span id="ratingSummary" class="rating-summary"></span>
+            </div>
+            <div id="portfolioGrid" class="portfolio-grid"></div>
+            <div id="portfolioEmpty" class="empty-panel">
+              <span class="empty-icon" aria-hidden="true">▧</span>
+              <h3>Chưa có album ảnh</h3>
+              <p>Hồ sơ hiện lưu liên kết portfolio bên ngoài; thư viện ảnh nội bộ chưa được thiết lập trong database.</p>
+            </div>
+          </section>
+
+          <section class="tab-panel reviews-panel" id="reviewsPanel" role="tabpanel" aria-labelledby="reviewsTab" hidden>
+            <div class="reviews-summary">
+              <div class="rating-score"><strong id="ratingValue">0.0</strong><span>★</span></div>
+              <div><h2>Đánh giá từ khách hàng</h2><p id="reviewsDescription"></p></div>
+            </div>
+            <div id="reviewsEmpty" class="empty-panel">
+              <span class="empty-icon" aria-hidden="true">☆</span>
+              <h3 id="reviewsEmptyTitle">Chưa có đánh giá</h3>
+              <p id="reviewsEmptyMessage">Nhận xét từ khách hàng sẽ xuất hiện tại đây sau các buổi chụp.</p>
+            </div>
+            <div id="reviewsList" class="review-list" hidden></div>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <footer class="profile-footer">
+      <a href="/">potonow</a>
+      <span>Your Moments, Our Passion!</span>
+    </footer>
+    <script src="/js/photographer-profile.js"></script>
+    <script src="/js/account-header.js"></script>
+  </body>
+</html>

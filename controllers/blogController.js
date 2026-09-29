@@ -3,13 +3,15 @@ const db = require("../config/db");
 // Lấy danh sách bài viết (có thể lọc theo danh mục)
 exports.getPosts = async (req, res) => {
     try {
-        const { category, page = 1, limit = 10 } = req.query;
+        const category = String(req.query.category || '').trim();
+        const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+        const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 10, 1), 50);
         const offset = (page - 1) * limit;
 
         let query = `
             SELECT p.*, c.name as category_name, c.slug as category_slug 
-            FROM Blog_Posts p 
-            LEFT JOIN Blog_Categories c ON p.category_id = c.category_id 
+            FROM blog_posts p
+            LEFT JOIN blog_categories c ON p.category_id = c.category_id
             WHERE p.status = 'published'
         `;
         const params = [];
@@ -26,8 +28,8 @@ exports.getPosts = async (req, res) => {
 
         // Lấy tổng số bài viết để tính số trang
         const [totalResult] = await db.query(
-            `SELECT COUNT(*) as count FROM Blog_Posts p 
-             LEFT JOIN Blog_Categories c ON p.category_id = c.category_id 
+            `SELECT COUNT(*) as count FROM blog_posts p
+             LEFT JOIN blog_categories c ON p.category_id = c.category_id
              WHERE p.status = 'published'${category ? ' AND c.slug = ?' : ''}`,
             category ? [category] : []
         );
@@ -45,7 +47,7 @@ exports.getPosts = async (req, res) => {
 // Lấy danh sách danh mục
 exports.getCategories = async (req, res) => {
     try {
-        const [categories] = await db.query('SELECT * FROM Blog_Categories ORDER BY category_id');
+        const [categories] = await db.query('SELECT category_id, name, slug FROM blog_categories ORDER BY category_id');
         res.json(categories);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -57,9 +59,9 @@ exports.getPostBySlug = async (req, res) => {
     try {
         const [posts] = await db.query(
             `SELECT p.*, c.name as category_name, c.slug as category_slug 
-             FROM Blog_Posts p 
-             LEFT JOIN Blog_Categories c ON p.category_id = c.category_id 
-             WHERE p.slug = ?`,
+             FROM blog_posts p
+             LEFT JOIN blog_categories c ON p.category_id = c.category_id
+             WHERE p.slug = ? AND p.status = 'published'`,
             [req.params.slug]
         );
 
@@ -78,7 +80,7 @@ exports.createPost = async (req, res) => {
         const { title, slug, excerpt, content, feature_image, category_id, author_name, reading_time, status } = req.body;
 
         const [result] = await db.query(
-            `INSERT INTO Blog_Posts 
+            `INSERT INTO blog_posts
              (title, slug, excerpt, content, feature_image, category_id, author_name, reading_time, status) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [title, slug, excerpt, content, feature_image, category_id, author_name, reading_time || 5, status || 'draft']
@@ -99,7 +101,7 @@ exports.updatePost = async (req, res) => {
         const { title, excerpt, content, feature_image, category_id, author_name, reading_time, status } = req.body;
 
         await db.query(
-            `UPDATE Blog_Posts 
+            `UPDATE blog_posts
              SET title=?, excerpt=?, content=?, feature_image=?, category_id=?, author_name=?, reading_time=?, status=? 
              WHERE post_id=?`,
             [title, excerpt, content, feature_image, category_id, author_name, reading_time, status, req.params.id]
@@ -114,7 +116,7 @@ exports.updatePost = async (req, res) => {
 // Xóa bài viết
 exports.deletePost = async (req, res) => {
     try {
-        await db.query('DELETE FROM Blog_Posts WHERE post_id=?', [req.params.id]);
+        await db.query('DELETE FROM blog_posts WHERE post_id=?', [req.params.id]);
         res.json({ message: "Post deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });

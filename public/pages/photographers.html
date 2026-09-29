@@ -11,6 +11,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/photographers.css" />
+    <link rel="stylesheet" href="/css/account-header.css" />
   </head>
   <body>
     <header class="topbar">
@@ -25,12 +26,12 @@
         </a>
 
         <nav class="nav" aria-label="Điều hướng chính">
-          <a href="#">Về Potonow</a>
+          <a href="/#about">Về Potonow</a>
           <a class="active" href="/pages/photographers.html">Nhiếp ảnh gia</a>
-          <a href="#">Danh Sách Buổi Chụp</a>
+          <a href="/pages/my-bookings.html">Lịch đặt của tôi</a>
           <a href="/pages/booking.html">Đặt Lịch</a>
-          <a href="#">Sự Kiện</a>
-          <a href="#">Blogs</a>
+          <a href="/#reasons">Sự kiện</a>
+          <a href="/pages/blogs.html">Blogs</a>
         </nav>
 
         <div class="topbar-actions">
@@ -41,7 +42,7 @@
           >
             VI <span>🇻🇳</span>
           </button>
-          <a class="login-btn" href="/pages/auth.html">Đăng nhập/Đăng ký</a>
+          <a class="login-btn" data-account-link href="/pages/auth.html">Đăng nhập/Đăng ký</a>
         </div>
       </div>
     </header>
@@ -85,9 +86,6 @@
         </button>
         <button class="sort-btn" type="button" data-sort="bookings">
           <span>☷</span> Số buổi chụp
-        </button>
-        <button class="sort-btn" type="button" data-sort="likes">
-          <span>♡</span> Số lượt yêu thích
         </button>
         <button class="sort-btn" type="button" data-sort="rating">
           <span>≡</span> Số điểm đánh giá
@@ -150,5 +148,6 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="/js/photographers.js"></script>
+    <script src="/js/account-header.js"></script>
   </body>
 </html>

@@ -6,6 +6,7 @@
     <title>PDUN Blog | PDUN</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/blog.css">
+    <link rel="stylesheet" href="/css/account-header.css">
 </head>
 <body>
     <!-- Header -->
@@ -21,10 +22,11 @@
             </a>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="/about">Về PDUN</a></li>
-                    <li><a href="/photographers">Nhiếp ảnh gia</a></li>
-                    <li><a href="/bookings">Đặt lịch</a></li>
+                    <li><a href="/#about">Về PDUN</a></li>
+                    <li><a href="/pages/photographers.html">Nhiếp ảnh gia</a></li>
+                    <li><a href="/pages/booking.html">Đặt lịch</a></li>
                     <li><a href="/pages/blogs.html">Blogs</a></li>
+                    <li><a class="account-link" data-account-link href="/pages/auth.html">Đăng nhập</a></li>
                 </ul>
             </nav>
         </div>
@@ -40,7 +42,7 @@
     <!-- Banner -->
     <div class="blog-banner">
         <div class="banner-overlay"></div>
-        <img src="/images/banners/banner.jpg" alt="PDUN Blog Banner" class="banner-image">
+        <img src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=1800&q=85" alt="Máy ảnh trên bàn làm việc" class="banner-image">
         <div class="banner-content">
             <h1>Blog Nhiếp Ảnh PDUN</h1>
             <p>Những câu chuyện, bí kíp và cảm hứng nhiếp ảnh dành cho bạn</p>
@@ -65,15 +67,15 @@
             </div>
             <div class="footer-column">
                 <h4>Thông tin</h4>
-                <a href="/about">Về PDUN</a>
-                <a href="/faqs">Câu hỏi thường gặp</a>
-                <a href="/dieu-khoan-dich-vu">Điều khoản dịch vụ</a>
+                <a href="/#about">Về PDUN</a>
+                <a href="/pages/booking.html">Đặt lịch</a>
+                <a href="/pages/auth.html">Tài khoản</a>
             </div>
             <div class="footer-column">
                 <h4>Dịch vụ</h4>
-                <a href="/bookings">Đặt lịch</a>
-                <a href="/photographers">Nhiếp ảnh gia</a>
-                <a href="/events">Sự kiện</a>
+                <a href="/pages/booking.html">Đặt lịch</a>
+                <a href="/pages/photographers.html">Nhiếp ảnh gia</a>
+                <a href="/#reasons">Sự kiện</a>
             </div>
             <div class="footer-column">
                 <h4>Liên hệ</h4>
@@ -87,5 +89,6 @@
     </footer>
 
     <script src="/js/blog.js"></script>
+    <script src="/js/account-header.js"></script>
 </body>
 </html>

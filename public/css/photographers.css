@@ -168,6 +168,8 @@ h1 { margin: 0 0 11px; font-size: 30px; line-height: 1.2; letter-spacing: 0; }
 .cover-wrap::before { left: -8%; }
 .cover-wrap::after { right: -8%; }
 .cover-image { position: relative; z-index: 1; display: block; width: 61%; height: 100%; margin: 0 auto; object-fit: cover; }
+.cover-placeholder { position: absolute; inset: 0; display: grid; place-items: center; background: repeating-linear-gradient(135deg, #e8eef1 0 18px, #e2e9ed 18px 36px); color: #78879a; font-size: 11px; }
+.cover-placeholder span { padding: 8px 11px; border-radius: 5px; background: rgba(255,255,255,.82); }
 .cover-arrow { position: absolute; z-index: 2; top: 50%; border: 0; color: #fff; background: transparent; font-size: 31px; line-height: 1; cursor: pointer; transform: translateY(-50%); text-shadow: 0 1px 4px rgba(0,0,0,.25); }
 .cover-arrow.left { left: 13px; }
 .cover-arrow.right { right: 13px; }
@@ -176,6 +178,7 @@ h1 { margin: 0 0 11px; font-size: 30px; line-height: 1.2; letter-spacing: 0; }
 .card-info { padding: 10px 9px 11px; }
 .profile-row { display: flex; align-items: center; gap: 9px; min-height: 48px; }
 .avatar { width: 43px; height: 43px; flex: 0 0 43px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,.08); }
+.avatar-initial { display: grid; place-items: center; background: #fff0e6; color: var(--orange); font-size: 16px; font-weight: 700; }
 .profile-main { min-width: 0; flex: 1; }
 .profile-name { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; color: var(--orange); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .verified { display: inline-grid; place-items: center; width: 13px; height: 13px; border: 1px solid #1686e8; border-radius: 50%; color: #1686e8; font-size: 9px; }

@@ -495,6 +495,16 @@
           ></textarea>
         </div>
 
+        <div class="form-group">
+          <label for="regPortfolioUrl">Link portfolio</label>
+          <input
+            type="url"
+            id="regPortfolioUrl"
+            class="form-control"
+            placeholder="https://..."
+          />
+        </div>
+
         <div class="checkbox-group">
           <input type="checkbox" id="terms" required />
           <label for="terms"
@@ -551,12 +561,12 @@
             <input id="customerEmail" class="form-control" type="email" autocomplete="email" required />
           </div>
           <div class="form-group">
-            <label for="customerPhone">Số điện thoại</label>
+            <label for="customerPhone">Số điện thoại <span class="required">*</span></label>
             <div class="phone-control">
               <select aria-label="Mã quốc gia" class="country-code">
                 <option value="+84">VN</option>
               </select>
-              <input id="customerPhone" class="form-control" type="tel" placeholder="0987 654 321" autocomplete="tel-national" />
+              <input id="customerPhone" class="form-control" type="tel" placeholder="0987 654 321" autocomplete="tel-national" required />
             </div>
           </div>
 
@@ -619,7 +629,7 @@
 
       document
         .getElementById("customerRegisterForm")
-        .addEventListener("submit", (event) => {
+        .addEventListener("submit", async (event) => {
           event.preventDefault();
           const password = document.getElementById("customerPassword").value;
           const confirmation = document.getElementById("customerConfirmPassword").value;
@@ -630,7 +640,28 @@
             return;
           }
 
-          status.textContent = "Đăng ký khách hàng chưa được kết nối với máy chủ.";
+          status.textContent = "Đang tạo tài khoản...";
+          try {
+            const response = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                role: "client",
+                fullName: document.getElementById("customerFullName").value.trim(),
+                dob: document.getElementById("customerDob").value,
+                email: document.getElementById("customerEmail").value.trim(),
+                phone: document.getElementById("customerPhone").value.trim(),
+                password,
+              }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "Đăng ký thất bại.");
+            alert(result.message || "Đăng ký thành công. Bạn có thể đăng nhập.");
+            event.target.reset();
+            switchView("view-login");
+          } catch (error) {
+            status.textContent = error.message || "Không thể kết nối tới máy chủ.";
+          }
         });
 
       async function login() {
@@ -655,9 +686,13 @@
           }
 
           localStorage.setItem("userId", String(result.user.id));
+          localStorage.setItem("userRole", result.user.role);
+          localStorage.setItem("userFullName", result.user.fullName);
           localStorage.setItem("token", result.token);
           alert("Đăng nhập thành công!");
-          window.location.href = "/pages/booking.html";
+          window.location.href = result.user.role === "photographer"
+            ? "/pages/photographer-profile.html?me=1"
+            : "/pages/booking.html";
         } catch (error) {
           alert(error.message || "Không thể kết nối tới máy chủ.");
         }
@@ -694,26 +729,22 @@
             location: document.getElementById("regLocation").value,
             experience: experienceValue,
             equipment: document.getElementById("regEquipment").value,
+            portfolioUrl: document.getElementById("regPortfolioUrl").value.trim(),
+            role: "photographer",
           };
 
           // Gửi API bằng Fetch
           try {
-            // Thay URL dưới đây bằng endpoint thực tế trên server Node.js của bạn
-            const response = await fetch(
-              "http://localhost:5000/api/auth/register",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-              },
-            );
+            const response = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(formData),
+            });
 
             const result = await response.json();
 
             if (response.ok) {
-              alert("Đăng ký thành công! Bạn có thể tiến hành đăng nhập.");
+              alert(result.message || "Đăng ký thành công! Bạn có thể tiến hành đăng nhập.");
               this.reset(); // Xóa trắng dữ liệu trên form
               switchView("view-login"); // Tự động chuyển về màn hình đăng nhập
             } else {

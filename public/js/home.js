@@ -1,28 +1,51 @@
-const photographers = [
-  { name: 'Itatripphoto', meta: 'Từ 1-3 năm · 6 lượt thích', image: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=900&q=85', text: 'Vui tính, nhiều chuyện, các bạn muốn một bộ ảnh vui tươi thì ghé qua với mình nhé.' },
-  { name: 'Nguyễn chụp film', meta: 'Từ 1-3 năm · Hà Nội', image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=85', text: 'Mình là Nguyễn Minh, chuyên chụp những khoảnh khắc tự nhiên và nhiều cảm xúc.' },
-  { name: 'Trịnh Hải Dương', meta: 'Trên 5 năm · TP.HCM', image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=900&q=85', text: 'Photographer sống với đam mê, luôn sẵn sàng đồng hành cùng câu chuyện của bạn.' },
-  { name: 'Linh Studio', meta: 'Từ 3-5 năm · Đà Nẵng', image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=85', text: 'Phong cách nhẹ nhàng, tự nhiên và ưu tiên những khoảnh khắc chân thật.' },
-  { name: 'Mộc Nhiên Photo', meta: 'Từ 1-3 năm · Hà Nội', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=85', text: 'Ghi lại những buổi gặp gỡ đời thường bằng màu ảnh trong trẻo và ấm áp.' },
-];
-
 const photographerGrid = document.getElementById('photographerGrid');
 let photographerOffset = 0;
+let photographers = [];
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
 
 function renderPhotographers() {
+  if (!photographers.length) {
+    photographerGrid.innerHTML = '<p class="photographer-empty">Chưa có nhiếp ảnh gia được duyệt. <a href="/pages/photographers.html">Xem danh sách</a></p>';
+    document.querySelector('.carousel-controls').hidden = true;
+    return;
+  }
+
   const visibleCount = window.innerWidth <= 560 ? 1 : 3;
-  const cards = Array.from({ length: visibleCount }, (_, index) => photographers[(photographerOffset + index) % photographers.length]);
+  const cards = Array.from({ length: Math.min(visibleCount, photographers.length) }, (_, index) => photographers[(photographerOffset + index) % photographers.length]);
+  document.querySelector('.carousel-controls').hidden = photographers.length <= visibleCount;
   photographerGrid.innerHTML = cards.map((photographer) => `
     <article class="photographer-card">
-      <img src="${photographer.image}" alt="${photographer.name}" loading="lazy" />
+      ${photographer.cover ? `<img src="${escapeHtml(photographer.cover)}" alt="Ảnh bìa ${escapeHtml(photographer.name)}" loading="lazy" />` : `<div class="home-photographer-placeholder" aria-label="Chưa có ảnh hồ sơ">${escapeHtml((photographer.name || 'P').trim().charAt(0).toUpperCase())}</div>`}
       <div class="photographer-info">
-        <h3>${photographer.name}</h3>
-        <div class="photographer-meta">${photographer.meta}</div>
-        <p>${photographer.text}</p>
-        <a class="card-link" href="/pages/booking.html">Xem & Đặt lịch →</a>
+        <h3>${escapeHtml(photographer.name)}</h3>
+        <div class="photographer-meta">${escapeHtml(photographer.experience || 'Nhiếp ảnh gia')} · ${escapeHtml((photographer.locations || []).join(', '))}</div>
+        <p>${escapeHtml(photographer.equipment || 'Thông tin thiết bị chưa được cập nhật.')}</p>
+        <a class="card-link" href="/pages/photographer-profile.html?id=${encodeURIComponent(photographer.id)}">Xem hồ sơ →</a>
       </div>
     </article>
   `).join('');
+}
+
+async function loadPhotographers() {
+  photographerGrid.innerHTML = '<p class="photographer-empty">Đang tải nhiếp ảnh gia...</p>';
+  try {
+    const response = await fetch('/api/photographers?page=1&limit=12&sort=rating');
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || 'Không thể tải nhiếp ảnh gia.');
+    photographers = result.data;
+    renderPhotographers();
+  } catch (error) {
+    photographerGrid.innerHTML = `<p class="photographer-empty">${escapeHtml(error.message || 'Không thể tải nhiếp ảnh gia.')} <a href="/pages/photographers.html">Mở danh sách</a></p>`;
+    document.querySelector('.carousel-controls').hidden = true;
+  }
 }
 
 function showToast(message) {
@@ -58,11 +81,13 @@ document.getElementById('quickSearch').addEventListener('submit', (event) => {
 });
 
 document.getElementById('prevPhotographer').addEventListener('click', () => {
+  if (!photographers.length) return;
   photographerOffset = (photographerOffset - 1 + photographers.length) % photographers.length;
   renderPhotographers();
 });
 
 document.getElementById('nextPhotographer').addEventListener('click', () => {
+  if (!photographers.length) return;
   photographerOffset = (photographerOffset + 1) % photographers.length;
   renderPhotographers();
 });
@@ -72,4 +97,4 @@ window.addEventListener('scroll', () => backToTop.classList.toggle('visible', wi
 backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 window.addEventListener('resize', renderPhotographers);
 
-renderPhotographers();
+loadPhotographers();

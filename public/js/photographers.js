@@ -35,7 +35,6 @@ function formatStats(photographer) {
   return `
     <span><span class="stars">★</span> ${photographer.rating.toFixed(1)} (${photographer.reviewCount})</span>
     <span>${photographer.bookingCount} buổi chụp</span>
-    <span>${photographer.likeCount} lượt thích</span>
   `;
 }
 
@@ -44,27 +43,30 @@ function renderCard(photographer, index) {
     .map((location) => `<span class="tag">${escapeHtml(location)}</span>`)
     .join('');
   const verified = photographer.isVerified ? '<span class="verified" title="Đã xác minh">✓</span>' : '';
+  const avatar = photographer.avatar
+    ? `<img class="avatar" src="${escapeHtml(photographer.avatar)}" alt="Ảnh đại diện ${escapeHtml(photographer.name)}" loading="lazy" />`
+    : `<span class="avatar avatar-initial" aria-label="${escapeHtml(photographer.name)}">${escapeHtml((photographer.name || 'P').trim().charAt(0).toUpperCase())}</span>`;
+  const cover = photographer.cover
+    ? `<img class="cover-image" src="${escapeHtml(photographer.cover)}" alt="Ảnh bìa của ${escapeHtml(photographer.name)}" loading="lazy" />`
+    : '<div class="cover-placeholder"><span>Ảnh bìa chưa cập nhật</span></div>';
 
   return `
     <article class="photographer-card" style="animation-delay: ${index * 45}ms">
-      <div class="cover-wrap" style="--cover: url('${escapeHtml(photographer.cover)}')">
-        <img class="cover-image" src="${escapeHtml(photographer.cover)}" alt="Ảnh portfolio của ${escapeHtml(photographer.name)}" loading="lazy" />
-        <button class="cover-arrow left" type="button" aria-label="Ảnh trước">‹</button>
-        <button class="cover-arrow right" type="button" aria-label="Ảnh tiếp theo">›</button>
+      <div class="cover-wrap">
+        ${cover}
       </div>
       <div class="card-info">
         <div class="profile-row">
-          <img class="avatar" src="${escapeHtml(photographer.avatar)}" alt="${escapeHtml(photographer.name)}" loading="lazy" />
+          ${avatar}
           <div class="profile-main">
             <div class="profile-name">${escapeHtml(photographer.name)} ${verified}</div>
             <div class="stats">${formatStats(photographer)}</div>
             <div class="tags">${locations}</div>
           </div>
         </div>
-        <p class="bio">${escapeHtml(photographer.bio)}</p>
+        <p class="bio"><strong>Thiết bị</strong><br />${escapeHtml(photographer.equipment || 'Chưa cập nhật thiết bị chụp.')}</p>
         <div class="card-actions">
-          <button class="favorite-btn" type="button" data-favorite="${photographer.id}"><span>♡</span> Yêu thích</button>
-          <a class="detail-btn" href="/pages/booking.html?photographerId=${photographer.id}">Xem &amp; Đặt lịch <span>→</span></a>
+          <a class="detail-btn" href="/pages/photographer-profile.html?id=${photographer.id}">Xem hồ sơ <span>→</span></a>
         </div>
       </div>
     </article>
@@ -74,14 +76,6 @@ function renderCard(photographer, index) {
 function renderPhotographers(photographers) {
   grid.innerHTML = photographers.map(renderCard).join('');
   emptyState.hidden = photographers.length > 0;
-
-  grid.querySelectorAll('[data-favorite]').forEach((button) => {
-    button.addEventListener('click', () => {
-      button.classList.toggle('saved');
-      button.querySelector('span').textContent = button.classList.contains('saved') ? '♥' : '♡';
-      showToast(button.classList.contains('saved') ? 'Đã thêm vào yêu thích.' : 'Đã bỏ khỏi yêu thích.');
-    });
-  });
 }
 
 function updatePagination(pagination) {

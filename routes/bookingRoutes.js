@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const bookingController = require("../controllers/bookingController");
+const requireAuth = require("../middleware/requireAuth");
 
-// Khai báo Route tạo đơn
-router.post("/", bookingController.createBooking);
+router.get("/mine", requireAuth, bookingController.listMyBookings);
+router.post("/", requireAuth, bookingController.createBooking);
 
 module.exports = router;

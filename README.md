@@ -1,0 +1,26 @@
+# Potonow photo booking
+
+## Set up the database
+
+Run the idempotent setup command after configuring MySQL:
+
+```sh
+npm run setup:db
+```
+
+This creates the tables represented by the supplied database document and the missing blog tables, then adds default packages and example blog posts. The schema uses `CREATE TABLE IF NOT EXISTS`; it does not modify existing table definitions or delete data. It works for a new database or one whose tables have already been imported.
+
+To add optional development photographer accounts, run `database/photographer-seed.sql` separately in MySQL or phpMyAdmin.
+
+The development photographer seed uses `anh.photo@example.invalid`, `nam.photo@example.invalid`, or `ha.photo@example.invalid` with password `PotonowDemo2026!`. Do not use these sample accounts in production.
+
+New photographer registrations are stored with status `pending` and are not public until reviewed. To approve one, an administrator can set its `photographer_profiles.status` to `active`.
+
+## Run the application
+
+1. Copy `.env.example` to `.env` and set the MySQL connection values and a private `JWT_SECRET`.
+2. Run `npm install`.
+3. Run `npm run setup:db`.
+4. Run `npm start` and open `http://localhost:5000`.
+
+Uploaded booking reference images are stored under `public/images/uploads/`; the upload folder is excluded from Git.

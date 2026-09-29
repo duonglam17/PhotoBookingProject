@@ -1,18 +1,18 @@
 USE photo_booking_db;
 
-INSERT INTO Services (service_name, description, is_active)
+INSERT INTO services (service_name, description, is_active)
 SELECT 'Chụp hình theo yêu cầu', 'Dịch vụ chụp hình cá nhân, cặp đôi, gia đình và sự kiện.', 1
 WHERE NOT EXISTS (
-  SELECT 1 FROM Services WHERE service_name = 'Chụp hình theo yêu cầu'
+  SELECT 1 FROM services WHERE service_name = 'Chụp hình theo yêu cầu'
 );
 
 SET @service_id = (
-  SELECT service_id FROM Services
+  SELECT service_id FROM services
   WHERE service_name = 'Chụp hình theo yêu cầu'
   LIMIT 1
 );
 
-INSERT INTO Packages (
+INSERT INTO packages (
   service_id,
   package_name,
   price,
@@ -32,6 +32,6 @@ FROM (
   UNION ALL SELECT 'Studio', 2400000, 120, 25, 'Bộ ảnh studio đã chỉnh màu.'
 ) AS seed
 WHERE NOT EXISTS (
-  SELECT 1 FROM Packages existing
+  SELECT 1 FROM packages existing
   WHERE existing.package_name = seed.package_name
 );

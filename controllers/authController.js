@@ -2,89 +2,109 @@ const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 
 exports.register = async (req, res) => {
-  // 1. Nhận dữ liệu từ request body (khớp với JSON từ frontend)
   const {
     fullName,
     dob,
     email,
     phone,
     password,
+    role = "client",
     location,
     experience,
     equipment,
+    portfolioUrl,
   } = req.body;
+  const accountRole = role === "photographer" ? "photographer" : role === "client" ? "client" : null;
+  if (!accountRole) {
+    return res.status(400).json({ message: "Vai trò đăng ký không hợp lệ." });
+  }
+  if (!fullName?.trim() || !email?.trim() || !phone?.trim() || !password) {
+    return res.status(400).json({ message: "Vui lòng nhập họ tên, email, số điện thoại và mật khẩu." });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    return res.status(400).json({ message: "Email không hợp lệ." });
+  }
+  if (password.length < 8 || password.length > 32) {
+    return res.status(400).json({ message: "Mật khẩu phải từ 8 đến 32 ký tự." });
+  }
+  if (dob) {
+    const birthDate = new Date(`${dob}T00:00:00`);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear() -
+      (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
+    if (Number.isNaN(birthDate.getTime()) || age < 16) {
+      return res.status(400).json({ message: "Người đăng ký phải từ đủ 16 tuổi trở lên." });
+    }
+  }
+  if (accountRole === "photographer" && (!location?.trim() || !experience?.trim() || !equipment?.trim())) {
+    return res.status(400).json({ message: "Vui lòng nhập địa điểm, kinh nghiệm và thiết bị chụp." });
+  }
+  if (accountRole === "photographer" && portfolioUrl?.trim()) {
+    try {
+      const parsedPortfolioUrl = new URL(portfolioUrl.trim());
+      if (!['http:', 'https:'].includes(parsedPortfolioUrl.protocol)) throw new Error();
+    } catch (error) {
+      return res.status(400).json({ message: "Link portfolio phải bắt đầu bằng http:// hoặc https://." });
+    }
+  }
 
-  // Lấy một kết nối (connection) riêng từ pool để thực hiện Transaction
-  const connection = await db.getConnection();
+  let connection;
+  let transactionStarted = false;
 
   try {
-    // Bắt đầu Transaction
+    connection = await db.getConnection();
     await connection.beginTransaction();
+    transactionStarted = true;
 
-    // 2. Kiểm tra xem Email hoặc SĐT đã tồn tại chưa
     const [existingUsers] = await connection.query(
-      "SELECT * FROM Users WHERE email = ? OR phone = ?",
-      [email, phone],
+      "SELECT user_id FROM users WHERE email = ? OR phone = ?",
+      [email.trim(), phone.trim()],
     );
 
     if (existingUsers.length > 0) {
-      // Nếu có lỗi logic, BẮT BUỘC phải Rollback trước khi return
       await connection.rollback();
+      transactionStarted = false;
       return res
         .status(400)
         .json({ message: "Email hoặc số điện thoại đã được đăng ký!" });
     }
 
-    // 3. Mã hóa mật khẩu
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [userResult] = await connection.execute(
+      `INSERT INTO users (full_name, dob, email, phone, password_hash, role)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [fullName.trim(), dob || null, email.trim(), phone.trim(), hashedPassword, accountRole],
+    );
+    const newUserId = userResult.insertId;
 
-    // 4. Lưu vào bảng Users với role là 'photographer'
-    const userSql = `
-            INSERT INTO Users (full_name, dob, email, phone, password_hash, role) 
-            VALUES (?, ?, ?, ?, ?, 'photographer')
-        `;
+    if (accountRole === "photographer") {
+      await connection.execute(
+        `INSERT INTO photographer_profiles
+         (user_id, location, experience, equipment, portfolio_url, status)
+         VALUES (?, ?, ?, ?, ?, 'pending')`,
+        [newUserId, location.trim(), experience.trim(), equipment.trim(), portfolioUrl?.trim() || null],
+      );
+    }
 
-    const [userResult] = await connection.execute(userSql, [
-      fullName,
-      dob || null, // Nếu không nhập ngày sinh thì lưu NULL
-      email,
-      phone,
-      hashedPassword,
-    ]);
-
-    const newUserId = userResult.insertId; // Lấy ID của user vừa tạo
-
-    // 5. Lưu tiếp vào bảng Photographer_Profiles bằng ID vừa lấy được
-    const profileSql = `
-            INSERT INTO Photographer_Profiles (user_id, location, experience, equipment) 
-            VALUES (?, ?, ?, ?)
-        `;
-
-    await connection.execute(profileSql, [
-      newUserId,
-      location,
-      experience,
-      equipment,
-    ]);
-
-    // 6. Hoàn tất Transaction: Lưu chính thức vào Database
     await connection.commit();
+    transactionStarted = false;
 
     res.status(201).json({
       success: true,
-      message: "Đăng ký tài khoản Nhiếp ảnh gia thành công!",
+      message: accountRole === "photographer"
+        ? "Đăng ký nhiếp ảnh gia thành công. Hồ sơ đang chờ xác minh."
+        : "Đăng ký tài khoản thành công.",
       userId: newUserId,
+      role: accountRole,
     });
   } catch (error) {
-    // Nếu có BẤT KỲ lỗi nào (ví dụ: mất mạng, sai cú pháp SQL), hủy toàn bộ thay đổi
-    await connection.rollback();
-    console.error("Lỗi đăng ký (Đã Rollback):", error);
-    res
-      .status(500)
-      .json({ message: "Lỗi Server nội bộ. Không thể tạo tài khoản." });
+    if (transactionStarted) await connection.rollback();
+    console.error("Lỗi đăng ký:", error);
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ message: "Email hoặc số điện thoại đã được đăng ký." });
+    }
+    res.status(500).json({ message: "Không thể tạo tài khoản. Hãy kiểm tra kết nối database." });
   } finally {
-    // Luôn luôn phải trả lại connection cho pool dù thành công hay thất bại
     if (connection) connection.release();
   }
 };
@@ -96,7 +116,7 @@ exports.login = async (req, res) => {
 
         // 1. Kiểm tra xem người dùng có tồn tại không
         const [users] = await db.query(
-            'SELECT * FROM Users WHERE email = ?', 
+            'SELECT * FROM users WHERE email = ?',
             [email]
         );
 
@@ -113,8 +133,15 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác!' });
         }
 
-        // 3. Tạo JSON Web Token (JWT)
-        // Lưu ý: Cần có một SECRET_KEY cấu hình trong file .env (VD: JWT_SECRET=PotonowSecretKey2025)
+        let photographerId = null;
+        if (user.role === 'photographer') {
+          const [profiles] = await db.query(
+            'SELECT photographer_id FROM photographer_profiles WHERE user_id = ?',
+            [user.user_id]
+          );
+          photographerId = profiles[0]?.photographer_id || null;
+        }
+
         const payload = {
             userId: user.user_id,
             role: user.role
@@ -122,8 +149,8 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign(
             payload, 
-            process.env.JWT_SECRET || 'fallback_secret_key', // Thay bằng biến môi trường thực tế
-            { expiresIn: '24h' } // Token có hạn trong 24 giờ
+            process.env.JWT_SECRET || 'development-only-secret',
+            { expiresIn: '24h' }
         );
 
         // 4. Trả về kết quả thành công
@@ -134,7 +161,8 @@ exports.login = async (req, res) => {
             user: {
                 id: user.user_id,
                 fullName: user.full_name,
-                role: user.role
+                role: user.role,
+                photographerId
             }
         });
 
@@ -142,4 +170,40 @@ exports.login = async (req, res) => {
         console.error("Lỗi đăng nhập:", error);
         res.status(500).json({ message: 'Lỗi Server nội bộ.' });
     }
+};
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const [users] = await db.query(
+      'SELECT user_id, full_name, role FROM users WHERE user_id = ?',
+      [req.auth.userId]
+    );
+
+    if (!users.length) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản.' });
+    }
+
+    const user = users[0];
+    let photographerId = null;
+    if (user.role === 'photographer') {
+      const [profiles] = await db.query(
+        'SELECT photographer_id FROM photographer_profiles WHERE user_id = ?',
+        [user.user_id]
+      );
+      photographerId = profiles[0]?.photographer_id || null;
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.user_id,
+        fullName: user.full_name,
+        role: user.role,
+        photographerId,
+      },
+    });
+  } catch (error) {
+    console.error('Lỗi tải tài khoản hiện tại:', error);
+    res.status(500).json({ success: false, message: 'Không thể tải thông tin tài khoản.' });
+  }
 };

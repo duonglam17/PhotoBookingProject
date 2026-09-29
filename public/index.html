@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/home.css" />
+    <link rel="stylesheet" href="/css/account-header.css" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -25,12 +26,12 @@
         <nav class="main-nav" aria-label="Điều hướng chính">
           <a href="#about">Về Potonow</a>
           <a href="/pages/photographers.html">Nhiếp ảnh gia</a>
-          <a href="#categories">Danh sách buổi chụp</a>
+          <a href="/pages/my-bookings.html">Lịch đặt của tôi</a>
           <a href="/pages/booking.html">Đặt lịch</a>
           <a href="#reasons">Sự kiện</a>
-          <a href="#footer">Blogs</a>
+          <a href="/pages/blogs.html">Blogs</a>
           <button class="language-button" type="button" aria-label="Ngôn ngữ hiện tại: Tiếng Việt">VI <span>🇻🇳</span></button>
-          <a class="header-cta" href="/pages/auth.html">Đăng nhập/Đăng ký</a>
+          <a class="header-cta" data-account-link href="/pages/auth.html">Đăng nhập/Đăng ký</a>
         </nav>
       </div>
     </header>
@@ -117,5 +118,6 @@
     <button class="back-to-top" id="backToTop" type="button" aria-label="Về đầu trang">↑</button>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="/js/home.js"></script>
+    <script src="/js/account-header.js"></script>
   </body>
 </html>

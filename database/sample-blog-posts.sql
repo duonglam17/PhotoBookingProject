@@ -3,10 +3,7 @@
 -- Chạy file này trong phpMyAdmin (tab SQL)
 -- =============================================
 
--- Xóa dữ liệu cũ trước khi insert lại
-DELETE FROM Blog_Posts;
-
-INSERT INTO Blog_Posts (title, slug, excerpt, content, feature_image, category_id, author_name, reading_time, status, created_at) VALUES
+INSERT IGNORE INTO blog_posts (title, slug, excerpt, content, feature_image, category_id, author_name, reading_time, status, created_at) VALUES
 (
 'Cách chụp ảnh chân dung đẹp tự nhiên, thu hút mọi ánh nhìn',
 'cach-chup-anh-chan-dung-dep-tu-nhien',

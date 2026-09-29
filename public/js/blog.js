@@ -11,6 +11,24 @@ const PLACEHOLDER_IMG = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent
     </svg>`
 );
 
+const SAMPLE_BLOG_IMAGES = [
+    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1000&q=85',
+];
+
+function resolveBlogImage(source) {
+    if (!source) return PLACEHOLDER_IMG;
+    const sampleMatch = String(source).match(/\/images\/blog\/blog-(\d+)\.jpg$/);
+    if (sampleMatch) {
+        return SAMPLE_BLOG_IMAGES[(Number(sampleMatch[1]) - 1) % SAMPLE_BLOG_IMAGES.length];
+    }
+    return source;
+}
+
 // ============ BLOG LIST PAGE ============
 async function loadBlogList() {
     const blogGrid = document.getElementById('blog-grid');
@@ -56,7 +74,7 @@ async function loadBlogList() {
 
         blogGrid.innerHTML = data.posts.map(post => `
             <a href="/pages/blog-detail.html?slug=${post.slug}" class="blog-card">
-                <img src="${post.feature_image || PLACEHOLDER_IMG}" 
+                <img src="${resolveBlogImage(post.feature_image)}"
                      alt="${escapeHtml(post.title)}" class="blog-card-image" 
                      onerror="this.onerror=null; this.src=PLACEHOLDER_IMG">
                 <div class="blog-card-content">
@@ -114,7 +132,7 @@ async function loadBlogDetail() {
         document.title = `${post.title} - PDUN Blog`;
 
         container.innerHTML = `
-            <img src="${post.feature_image || PLACEHOLDER_IMG}" 
+            <img src="${resolveBlogImage(post.feature_image)}"
                  alt="${escapeHtml(post.title)}" class="blog-detail-image"
                  onerror="this.onerror=null; this.src=PLACEHOLDER_IMG">
 
@@ -145,6 +163,10 @@ async function loadBlogDetail() {
             </div>
         `;
 
+        container.querySelectorAll('.blog-detail-content img').forEach((image) => {
+            image.src = resolveBlogImage(image.getAttribute('src'));
+        });
+
         // Load bài viết liên quan
         if (post.category_slug) {
             try {
@@ -156,7 +178,7 @@ async function loadBlogDetail() {
                     relatedSection.style.display = 'block';
                     relatedGrid.innerHTML = relatedPosts.map(p => `
                         <a href="/pages/blog-detail.html?slug=${p.slug}" class="related-card">
-                            <img src="${p.feature_image || PLACEHOLDER_IMG}" 
+                            <img src="${resolveBlogImage(p.feature_image)}"
                                  alt="${escapeHtml(p.title)}" class="related-card-image"
                                  onerror="this.onerror=null; this.src=PLACEHOLDER_IMG">
                             <div class="related-card-content">
