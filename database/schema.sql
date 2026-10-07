@@ -179,6 +179,15 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS blog_post_sources (
+  post_id INT NOT NULL,
+  source_url VARCHAR(2048) NOT NULL,
+  PRIMARY KEY (post_id),
+  CONSTRAINT fk_blog_post_sources_post
+    FOREIGN KEY (post_id) REFERENCES blog_posts(post_id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 INSERT INTO blog_categories (name, slug) VALUES
   ('Chân dung', 'chan-dung'),
   ('Cặp đôi', 'cap-doi'),

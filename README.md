@@ -26,6 +26,8 @@ UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';
 
 Sign out and back in with that account. Login redirects administrators to `/pages/admin.html`. The admin API checks the signed-in role; public registration does not allow creating administrator accounts.
 
+The admin dashboard includes a **Bài viết** tab. Paste a public article URL and choose **Lấy thông tin** to preview its page title, Open Graph image, and description before editing and saving it as a draft or published post. Blog create, update, delete, and metadata preview endpoints require the admin role.
+
 ## Run the application
 
 1. Copy `.env.example` to `.env` and set the MySQL connection values and a private `JWT_SECRET`.

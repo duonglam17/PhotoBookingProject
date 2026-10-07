@@ -29,6 +29,7 @@
     profileItem.href = profileHref;
     profileItem.textContent = 'Hồ sơ của tôi';
     profileItem.setAttribute('role', 'menuitem');
+    accountMenu.append(profileItem);
 
     if (role === 'photographer') {
       const scheduleItem = document.createElement('a');
@@ -67,7 +68,7 @@
       window.location.href = '/pages/auth.html';
     });
 
-    accountMenu.append(profileItem, logoutButton);
+    accountMenu.append(logoutButton);
     menuWrapper.append(accountMenu);
     accountLink.setAttribute('aria-haspopup', 'menu');
     accountLink.setAttribute('aria-expanded', 'false');

@@ -11,13 +11,4 @@ router.get("/blogs/categories", blogController.getCategories);
 // Lấy bài viết theo slug
 router.get("/blogs/:slug", blogController.getPostBySlug);
 
-// Tạo bài viết mới
-router.post("/blogs", blogController.createPost);
-
-// Cập nhật bài viết
-router.put("/blogs/:id", blogController.updatePost);
-
-// Xóa bài viết
-router.delete("/blogs/:id", blogController.deletePost);
-
 module.exports = router;

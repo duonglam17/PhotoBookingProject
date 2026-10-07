@@ -95,9 +95,9 @@ function renderProfile(photographer) {
   const reviewCount = Number(photographer.reviewCount) || 0;
   const bookingUrl = `/pages/booking.html?photographerId=${encodeURIComponent(photographer.id)}`;
 
-  document.title = `${photographer.name || 'Nhiếp ảnh gia'} | Potonow`;
+  document.title = `${photographer.name || 'Nhiếp ảnh gia'} | Pdun.Foto`;
   document.getElementById('photographerName').textContent = photographer.name || 'Nhiếp ảnh gia';
-  document.getElementById('experienceLabel').textContent = photographer.experience || 'Nhiếp ảnh gia Potonow';
+  document.getElementById('experienceLabel').textContent = photographer.experience || 'Nhiếp ảnh gia Pdun.Foto';
   document.getElementById('locationLabel').textContent = locations.join(' · ') || 'Chưa cập nhật khu vực';
   document.getElementById('photographerEquipment').textContent = photographer.equipment || 'Chưa cập nhật thiết bị chụp.';
   document.getElementById('photographerBio').textContent = photographer.bio || 'Chưa cập nhật giới thiệu.';
@@ -146,7 +146,7 @@ function renderProfile(photographer) {
 
   const profileNotice = document.getElementById('profileNotice');
   profileNotice.hidden = ownProfile || Boolean(photographer.isVerified);
-  document.getElementById('profileNoticeText').textContent = 'Hồ sơ này đang chờ Potonow xác minh thông tin.';
+  document.getElementById('profileNoticeText').textContent = 'Hồ sơ này đang chờ Pdun.Foto xác minh thông tin.';
   setupOwnerEditor(photographer);
   profilePage.setAttribute('aria-busy', 'false');
   profileContent.hidden = false;

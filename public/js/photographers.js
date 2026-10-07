@@ -67,7 +67,7 @@ function renderCard(photographer, index) {
             <div class="tags">${locations}</div>
           </div>
         </div>
-        <p class="bio">${escapeHtml(photographer.bio || 'Nhiếp ảnh gia Potonow')}<br /><strong>Thiết bị:</strong> ${escapeHtml(photographer.equipment || 'Chưa cập nhật')}<br /><strong>Kinh nghiệm:</strong> ${escapeHtml(photographer.experience || 'Chưa cập nhật')}</p>
+        <p class="bio">${escapeHtml(photographer.bio || 'Nhiếp ảnh gia Pdun.Foto')}<br /><strong>Thiết bị:</strong> ${escapeHtml(photographer.equipment || 'Chưa cập nhật')}<br /><strong>Kinh nghiệm:</strong> ${escapeHtml(photographer.experience || 'Chưa cập nhật')}</p>
         ${photographer.specialties ? `<div class="tags mini-specialties">${photographer.specialties.split(/[,;|]/).map((specialty) => specialty.trim()).filter(Boolean).slice(0, 4).map((specialty) => `<span class="tag">${escapeHtml(specialty)}</span>`).join('')}</div>` : ''}
         <div class="card-actions">
           <span class="detail-btn">Xem hồ sơ <span>→</span></span>

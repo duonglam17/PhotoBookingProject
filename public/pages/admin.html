@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Quản trị hồ sơ nhiếp ảnh gia và lịch chụp Potonow." />
-    <title>Quản trị | Potonow</title>
+    <meta name="description" content="Quản trị hồ sơ nhiếp ảnh gia và lịch chụp Pdun.Foto." />
+    <title>Quản trị | Pdun.Foto</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -12,13 +12,13 @@
   </head>
   <body>
     <header class="admin-topbar">
-      <a class="admin-brand" href="/" aria-label="Potonow trang chủ"><span class="brand-mark">P</span><span>potonow <small>ADMIN</small></span></a>
+      <a class="admin-brand" href="/" aria-label="Pdun.Foto trang chủ"><span class="brand-mark">P</span><span>Pdun.Foto <small>ADMIN</small></span></a>
       <div class="admin-session"><span id="adminName">Quản trị viên</span><button id="logoutButton" type="button" aria-label="Đăng xuất">Đăng xuất</button></div>
     </header>
 
     <main class="admin-shell">
       <section class="admin-heading">
-        <div><p class="eyebrow">OPERATIONS / PHOTOGRAPHERS</p><h1>Quản trị nhiếp ảnh gia</h1><p>Kiểm duyệt hồ sơ, theo dõi lịch chụp và tài khoản thợ.</p></div>
+        <div><p class="eyebrow">PDUN.FOTO / ADMIN</p><h1>Quản trị nội dung và nhiếp ảnh gia</h1><p>Kiểm duyệt hồ sơ, lịch chụp và bài viết.</p></div>
         <button id="refreshButton" class="icon-button" type="button" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">↻</button>
       </section>
 
@@ -33,6 +33,7 @@
         <button class="admin-tab active" type="button" data-view="reviewsView">Xét duyệt hồ sơ <span id="pendingTabCount">0</span></button>
         <button class="admin-tab" type="button" data-view="photographersView">Tài khoản thợ</button>
         <button class="admin-tab" type="button" data-view="bookingsView">Lịch chụp</button>
+        <button class="admin-tab" type="button" data-view="blogsView">Bài viết</button>
       </nav>
 
       <section id="reviewsView" class="admin-view">
@@ -56,6 +57,27 @@
         <p id="bookingsEmpty" class="empty-state" hidden>Chưa có lịch chụp phù hợp.</p>
       </section>
 
+      <section id="blogsView" class="admin-view" hidden>
+        <div class="section-heading"><div><h2>Quản lý bài viết</h2><p>Dán link bài báo để tự lấy tiêu đề, ảnh đại diện và nội dung giới thiệu.</p></div><button id="newBlogButton" class="button-primary" type="button">＋ Thêm bài viết</button></div>
+        <form id="blogEditor" class="blog-editor" hidden>
+          <div class="blog-editor-heading"><div><h3 id="blogEditorTitle">Bài viết mới</h3><p>Thông tin lấy từ link có thể chỉnh sửa trước khi lưu.</p></div><button id="closeBlogEditor" class="button-secondary" type="button">Đóng</button></div>
+          <label class="blog-source-field"><span>Link bài báo <b>*</b></span><div class="blog-source-control"><input id="blogSourceUrl" type="url" required placeholder="https://example.com/bai-viet" /><button id="previewBlogSource" class="button-secondary" type="button">Lấy thông tin</button></div></label>
+          <div id="blogSourcePreview" class="blog-source-preview" hidden></div>
+          <div class="blog-form-grid">
+            <label><span>Tiêu đề <b>*</b></span><input id="blogTitle" maxlength="255" required /></label>
+            <label><span>Danh mục</span><select id="blogCategory"><option value="">Chưa phân loại</option></select></label>
+            <label><span>Ảnh đại diện</span><input id="blogImage" type="url" maxlength="500" placeholder="Được điền tự động từ trang bài báo" /></label>
+            <label><span>Tác giả</span><input id="blogAuthor" maxlength="120" placeholder="Pdun.Foto" /></label>
+            <label class="blog-excerpt-field"><span>Nội dung tiêu biểu <b>*</b></span><textarea id="blogExcerpt" rows="3" maxlength="5000" required></textarea></label>
+            <label class="blog-content-field"><span>Nội dung bài viết</span><textarea id="blogContent" rows="6" maxlength="30000" placeholder="Đoạn giới thiệu sẽ được dùng nếu để trống."></textarea></label>
+            <label><span>Trạng thái</span><select id="blogStatus"><option value="draft">Bản nháp</option><option value="published">Đăng công khai</option></select></label>
+          </div>
+          <div class="blog-editor-actions"><p id="blogEditorStatus" role="status" aria-live="polite"></p><button id="saveBlogButton" class="button-primary" type="submit">Lưu bài viết</button></div>
+        </form>
+        <div class="table-wrap blog-table-wrap"><table><thead><tr><th>Bài viết</th><th>Danh mục</th><th>Link nguồn</th><th>Ngày tạo</th><th>Trạng thái</th><th></th></tr></thead><tbody id="blogsTable"></tbody></table></div>
+        <p id="blogsEmpty" class="empty-state" hidden>Chưa có bài viết.</p>
+      </section>
+
       <p id="adminStatus" class="admin-status" role="status" aria-live="polite"></p>
     </main>
 
@@ -64,5 +86,6 @@
       <div id="photographerDetail"></div>
     </dialog>
     <script src="/js/admin.js"></script>
+    <script src="/js/admin-blogs.js"></script>
   </body>
 </html>
