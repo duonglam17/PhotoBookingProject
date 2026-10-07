@@ -16,6 +16,16 @@ The development photographer seed uses `anh.photo@example.invalid`, `nam.photo@e
 
 New photographer registrations are stored with status `pending` and are not public until reviewed. Registration accepts 1 to 12 uploaded gallery photos; the first photo is used on photographer listings. To approve one, an administrator can set its `photographer_profiles.status` to `active`.
 
+## Administrator access
+
+Register a normal account first, then grant it administrator access directly in MySQL:
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';
+```
+
+Sign out and back in with that account. Login redirects administrators to `/pages/admin.html`. The admin API checks the signed-in role; public registration does not allow creating administrator accounts.
+
 ## Run the application
 
 1. Copy `.env.example` to `.env` and set the MySQL connection values and a private `JWT_SECRET`.

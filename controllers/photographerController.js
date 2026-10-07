@@ -46,11 +46,16 @@ const baseSelect = `
     ) AS bookingCount,
     p.location AS locations,
     p.experience AS experience,
+    p.status AS status,
     (p.status = 'active') AS isVerified
   FROM photographer_profiles p
   INNER JOIN users u ON u.user_id = p.user_id
   LEFT JOIN photographer_profile_details d ON d.photographer_id = p.photographer_id
-  WHERE p.status = 'active'
+  WHERE (p.status = 'active'
+    OR (p.status = 'pending' AND EXISTS (
+      SELECT 1 FROM photographer_photos visible_photo
+      WHERE visible_photo.photographer_id = p.photographer_id
+    )))
 `;
 
 function parseLocations(value) {
@@ -189,7 +194,10 @@ exports.listPhotographers = async (req, res) => {
       `SELECT COUNT(*) AS total
        FROM photographer_profiles p
        INNER JOIN users u ON u.user_id = p.user_id
-       WHERE p.status = 'active'${whereClause}`,
+       WHERE (p.status = 'active' OR (p.status = 'pending' AND EXISTS (
+         SELECT 1 FROM photographer_photos visible_photo
+         WHERE visible_photo.photographer_id = p.photographer_id
+       )))${whereClause}`,
       values,
     );
     const total = Number(countRows[0].total);
@@ -223,7 +231,10 @@ exports.getPhotographer = async (req, res) => {
     if (!/^\d+$/.test(req.params.id)) {
       return res.status(400).json({ success: false, message: "Mã nhiếp ảnh gia không hợp lệ." });
     }
-    const [rows] = await db.execute(`${baseSelect} AND photographer_id = ?`, [req.params.id]);
+    const [rows] = await db.execute(
+      `${baseSelect} AND p.photographer_id = ?`,
+      [req.params.id],
+    );
 
     if (!rows.length) {
       return res.status(404).json({ success: false, message: "Không tìm thấy nhiếp ảnh gia." });

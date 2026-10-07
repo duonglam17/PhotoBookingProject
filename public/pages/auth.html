@@ -717,9 +717,11 @@
           localStorage.setItem("userFullName", result.user.fullName);
           localStorage.setItem("token", result.token);
           alert("Đăng nhập thành công!");
-          window.location.href = result.user.role === "photographer"
-            ? "/pages/photographer-profile.html?me=1"
-            : "/pages/booking.html";
+          window.location.href = result.user.role === "admin"
+            ? "/pages/admin.html"
+            : result.user.role === "photographer"
+              ? "/pages/photographer-profile.html?me=1"
+              : "/pages/booking.html";
         } catch (error) {
           alert(error.message || "Không thể kết nối tới máy chủ.");
         }
@@ -768,6 +770,7 @@
 
           const submitButton = this.querySelector('button[type="submit"]');
           submitButton.disabled = true;
+          let registerTimeout;
           try {
             status.textContent = "Đang tải ảnh lên...";
             const uploadedPhotos = await Promise.all(photoFiles.map(async (file) => {
@@ -782,10 +785,13 @@
             }));
             formData.photoUrls = uploadedPhotos;
             status.textContent = "Đang tạo hồ sơ...";
+            const registerController = new AbortController();
+            registerTimeout = setTimeout(() => registerController.abort(), 20000);
             const response = await fetch("/api/auth/register", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(formData),
+              signal: registerController.signal,
             });
 
             const result = await response.json();
@@ -801,8 +807,11 @@
             }
           } catch (error) {
             console.error("Lỗi khi kết nối tới Server:", error);
-            status.textContent = error.message || "Không thể kết nối tới máy chủ.";
+            status.textContent = error.name === "AbortError"
+              ? "Máy chủ đang phản hồi chậm. Hồ sơ chưa xác nhận được; vui lòng thử lại sau ít phút."
+              : error.message || "Không thể kết nối tới máy chủ.";
           } finally {
+            clearTimeout(registerTimeout);
             submitButton.disabled = false;
           }
         });

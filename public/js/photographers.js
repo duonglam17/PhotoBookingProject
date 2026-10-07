@@ -42,7 +42,9 @@ function renderCard(photographer, index) {
   const locations = photographer.locations
     .map((location) => `<span class="tag">${escapeHtml(location)}</span>`)
     .join('');
-  const verified = photographer.isVerified ? '<span class="verified" title="Đã xác minh">✓</span>' : '';
+  const verified = photographer.isVerified
+    ? '<span class="verified" title="Đã xác minh">✓</span>'
+    : '<span class="reviewing-badge">Đang xét duyệt</span>';
   const avatar = photographer.avatar
     ? `<img class="avatar" src="${escapeHtml(photographer.avatar)}" alt="Ảnh đại diện ${escapeHtml(photographer.name)}" loading="lazy" />`
     : `<span class="avatar avatar-initial" aria-label="${escapeHtml(photographer.name)}">${escapeHtml((photographer.name || 'P').trim().charAt(0).toUpperCase())}</span>`;
@@ -65,7 +67,8 @@ function renderCard(photographer, index) {
             <div class="tags">${locations}</div>
           </div>
         </div>
-        <p class="bio"><strong>Thiết bị</strong><br />${escapeHtml(photographer.equipment || 'Chưa cập nhật thiết bị chụp.')}</p>
+        <p class="bio">${escapeHtml(photographer.bio || 'Nhiếp ảnh gia Potonow')}<br /><strong>Thiết bị:</strong> ${escapeHtml(photographer.equipment || 'Chưa cập nhật')}<br /><strong>Kinh nghiệm:</strong> ${escapeHtml(photographer.experience || 'Chưa cập nhật')}</p>
+        ${photographer.specialties ? `<div class="tags mini-specialties">${photographer.specialties.split(/[,;|]/).map((specialty) => specialty.trim()).filter(Boolean).slice(0, 4).map((specialty) => `<span class="tag">${escapeHtml(specialty)}</span>`).join('')}</div>` : ''}
         <div class="card-actions">
           <span class="detail-btn">Xem hồ sơ <span>→</span></span>
         </div>

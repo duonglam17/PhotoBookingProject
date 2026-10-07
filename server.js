@@ -10,6 +10,7 @@ const blogRoutes = require("./routes/blogRoutes");
 const catalogRoutes = require("./routes/catalogRoutes");
 const healthRoutes = require("./routes/healthRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/health", healthRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/photographers", photographerRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api", catalogRoutes);
 app.use("/api", blogRoutes);
 app.use("/api", uploadRoutes);

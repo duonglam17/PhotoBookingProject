@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Quản trị hồ sơ nhiếp ảnh gia và lịch chụp Potonow." />
+    <title>Quản trị | Potonow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body>
+    <header class="admin-topbar">
+      <a class="admin-brand" href="/" aria-label="Potonow trang chủ"><span class="brand-mark">P</span><span>potonow <small>ADMIN</small></span></a>
+      <div class="admin-session"><span id="adminName">Quản trị viên</span><button id="logoutButton" type="button" aria-label="Đăng xuất">Đăng xuất</button></div>
+    </header>
+
+    <main class="admin-shell">
+      <section class="admin-heading">
+        <div><p class="eyebrow">OPERATIONS / PHOTOGRAPHERS</p><h1>Quản trị nhiếp ảnh gia</h1><p>Kiểm duyệt hồ sơ, theo dõi lịch chụp và tài khoản thợ.</p></div>
+        <button id="refreshButton" class="icon-button" type="button" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">↻</button>
+      </section>
+
+      <section class="metric-grid" aria-label="Thống kê tổng quan">
+        <article class="metric"><span>Hồ sơ thợ ảnh</span><strong id="metricPhotographers">—</strong><small><b id="metricPending">—</b> chờ duyệt</small></article>
+        <article class="metric metric-accent"><span>Đang hoạt động</span><strong id="metricActive">—</strong><small>Tài khoản nhận lịch</small></article>
+        <article class="metric"><span>Tổng buổi chụp</span><strong id="metricBookings">—</strong><small><b id="metricCompleted">—</b> đã hoàn thành</small></article>
+        <article class="metric"><span>Khách hàng</span><strong id="metricClients">—</strong><small>Đã đăng ký</small></article>
+      </section>
+
+      <nav class="admin-tabs" aria-label="Khu vực quản trị">
+        <button class="admin-tab active" type="button" data-view="reviewsView">Xét duyệt hồ sơ <span id="pendingTabCount">0</span></button>
+        <button class="admin-tab" type="button" data-view="photographersView">Tài khoản thợ</button>
+        <button class="admin-tab" type="button" data-view="bookingsView">Lịch chụp</button>
+      </nav>
+
+      <section id="reviewsView" class="admin-view">
+        <div class="section-heading"><div><h2>Hồ sơ chờ xét duyệt</h2><p>Kiểm tra thông tin và bộ ảnh trước khi kích hoạt tài khoản.</p></div><span id="reviewResultCount" class="result-count"></span></div>
+        <div id="reviewQueue" class="review-queue" aria-live="polite"></div>
+      </section>
+
+      <section id="photographersView" class="admin-view" hidden>
+        <div class="section-heading"><div><h2>Tài khoản thợ ảnh</h2><p>Thông tin liên hệ, trạng thái và số buổi chụp của từng thợ.</p></div>
+          <label class="filter-control"><span>Trạng thái</span><select id="photographerStatusFilter"><option value="all">Tất cả</option><option value="pending">Chờ duyệt</option><option value="active">Đang hoạt động</option><option value="inactive">Ngừng hoạt động</option></select></label>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Thợ ảnh</th><th>Liên hệ</th><th>Khu vực</th><th>Buổi chụp</th><th>Đánh giá</th><th>Trạng thái</th><th></th></tr></thead><tbody id="photographersTable"></tbody></table></div>
+        <p id="photographersEmpty" class="empty-state" hidden>Chưa có tài khoản thợ ảnh.</p>
+      </section>
+
+      <section id="bookingsView" class="admin-view" hidden>
+        <div class="section-heading"><div><h2>Lịch chụp của thợ</h2><p>Xem lịch theo ngày, khách hàng, gói chụp và trạng thái.</p></div>
+          <div class="booking-filters"><label class="filter-control"><span>Nhiếp ảnh gia</span><select id="bookingPhotographerFilter"><option value="">Tất cả thợ</option></select></label><label class="filter-control"><span>Trạng thái</span><select id="bookingStatusFilter"><option value="">Tất cả</option><option value="pending">Chờ xác nhận</option><option value="confirmed">Đã xác nhận</option><option value="in_progress">Đang chụp</option><option value="completed">Hoàn thành</option><option value="cancelled">Đã hủy</option></select></label></div>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Ngày / giờ</th><th>Mã lịch</th><th>Nhiếp ảnh gia</th><th>Khách hàng</th><th>Gói chụp</th><th>Địa điểm</th><th>Trạng thái</th></tr></thead><tbody id="bookingsTable"></tbody></table></div>
+        <p id="bookingsEmpty" class="empty-state" hidden>Chưa có lịch chụp phù hợp.</p>
+      </section>
+
+      <p id="adminStatus" class="admin-status" role="status" aria-live="polite"></p>
+    </main>
+
+    <dialog id="photographerDialog" class="detail-dialog">
+      <form method="dialog"><button class="dialog-close" aria-label="Đóng">×</button></form>
+      <div id="photographerDetail"></div>
+    </dialog>
+    <script src="/js/admin.js"></script>
+  </body>
+</html>

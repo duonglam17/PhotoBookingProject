@@ -183,11 +183,13 @@ h1 { margin: 0 0 11px; font-size: 30px; line-height: 1.2; letter-spacing: 0; }
 .profile-main { min-width: 0; flex: 1; }
 .profile-name { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; color: var(--orange); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .verified { display: inline-grid; place-items: center; width: 13px; height: 13px; border: 1px solid #1686e8; border-radius: 50%; color: #1686e8; font-size: 9px; }
+.reviewing-badge { display: inline-flex; align-items: center; padding: 2px 5px; border-radius: 4px; background: #fff3d6; color: #8a5a00; font-size: 8px; font-weight: 600; }
 .stats { display: flex; flex-wrap: wrap; gap: 7px; color: var(--ink); font-size: 10px; }
 .stars { color: #ffb21a; font-size: 11px; }
 .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .tag { padding: 3px 6px; border-radius: 5px; color: var(--orange); background: #fff0e6; font-size: 9px; }
 .bio { min-height: 67px; margin: 7px 0 9px; padding: 9px 8px; border-radius: 12px; color: #425268; background: var(--white); font-size: 11px; line-height: 1.55; }
+.mini-specialties { min-height: 21px; margin: -2px 0 7px; }
 .card-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .favorite-btn, .detail-btn { border: 0; background: transparent; color: var(--orange); font-size: 12px; font-weight: 600; cursor: pointer; }
 .favorite-btn { padding: 4px 0; }

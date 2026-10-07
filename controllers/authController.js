@@ -59,9 +59,18 @@ exports.register = async (req, res) => {
 
   let connection;
   let transactionStarted = false;
+  let timedOut = false;
+  let registrationTimeout;
 
   try {
     connection = await db.getConnection();
+    registrationTimeout = setTimeout(() => {
+      timedOut = true;
+      connection.destroy();
+      if (!res.headersSent) {
+        res.status(503).json({ message: "Máy chủ cơ sở dữ liệu đang phản hồi chậm. Vui lòng thử lại sau ít phút." });
+      }
+    }, 20000);
     await connection.beginTransaction();
     transactionStarted = true;
 
@@ -113,14 +122,16 @@ exports.register = async (req, res) => {
       role: accountRole,
     });
   } catch (error) {
-    if (transactionStarted) await connection.rollback();
+    if (transactionStarted && !timedOut) await connection.rollback();
     console.error("Lỗi đăng ký:", error);
+    if (timedOut || res.headersSent) return;
     if (error.code === "ER_DUP_ENTRY") {
       return res.status(400).json({ message: "Email hoặc số điện thoại đã được đăng ký." });
     }
     res.status(500).json({ message: "Không thể tạo tài khoản. Hãy kiểm tra kết nối database." });
   } finally {
-    if (connection) connection.release();
+    clearTimeout(registrationTimeout);
+    if (connection && !timedOut) connection.release();
   }
 };
 const jwt = require('jsonwebtoken');
