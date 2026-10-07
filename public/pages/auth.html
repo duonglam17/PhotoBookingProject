@@ -134,6 +134,28 @@
         margin-top: 5px;
         display: block;
       }
+      .photographer-photo-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .photographer-photo-preview img {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 6px;
+        background: var(--input-bg);
+        object-fit: cover;
+      }
+      .photographer-register-status {
+        margin-top: 8px;
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+      #registerForm button[type="submit"]:disabled {
+        cursor: wait;
+        opacity: 0.65;
+      }
       .error-text {
         color: var(--error-red);
       }
@@ -496,13 +518,18 @@
         </div>
 
         <div class="form-group">
-          <label for="regPortfolioUrl">Link portfolio</label>
+          <label for="regPhotographerPhotos">Ảnh đã chụp <span class="required">*</span></label>
           <input
-            type="url"
-            id="regPortfolioUrl"
+            type="file"
+            id="regPhotographerPhotos"
             class="form-control"
-            placeholder="https://..."
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            multiple
+            required
           />
+          <span class="helper-text">Tải lên từ 1 đến 12 ảnh JPG, PNG, GIF hoặc WEBP; tối đa 5 MB mỗi ảnh.</span>
+          <div id="photographerPhotoPreview" class="photographer-photo-preview" aria-live="polite"></div>
+          <p id="photographerRegisterStatus" class="photographer-register-status" role="status" aria-live="polite"></p>
         </div>
 
         <div class="checkbox-group">
@@ -718,6 +745,12 @@
           const experienceValue = document.querySelector(
             'input[name="exp"]:checked',
           ).value;
+          const photoFiles = Array.from(document.getElementById("regPhotographerPhotos").files);
+          const status = document.getElementById("photographerRegisterStatus");
+          if (photoFiles.length < 1 || photoFiles.length > 12) {
+            status.textContent = "Vui lòng chọn từ 1 đến 12 ảnh.";
+            return;
+          }
 
           // Đóng gói toàn bộ dữ liệu vào một Object
           const formData = {
@@ -729,12 +762,26 @@
             location: document.getElementById("regLocation").value,
             experience: experienceValue,
             equipment: document.getElementById("regEquipment").value,
-            portfolioUrl: document.getElementById("regPortfolioUrl").value.trim(),
+            photoUrls: [],
             role: "photographer",
           };
 
-          // Gửi API bằng Fetch
+          const submitButton = this.querySelector('button[type="submit"]');
+          submitButton.disabled = true;
           try {
+            status.textContent = "Đang tải ảnh lên...";
+            const uploadedPhotos = await Promise.all(photoFiles.map(async (file) => {
+              const uploadData = new FormData();
+              uploadData.append("image", file);
+              const uploadResponse = await fetch("/api/upload", { method: "POST", body: uploadData });
+              const uploadResult = await uploadResponse.json();
+              if (!uploadResponse.ok || !uploadResult.url) {
+                throw new Error(uploadResult.error || "Không thể tải ảnh lên.");
+              }
+              return uploadResult.url;
+            }));
+            formData.photoUrls = uploadedPhotos;
+            status.textContent = "Đang tạo hồ sơ...";
             const response = await fetch("/api/auth/register", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -746,19 +793,38 @@
             if (response.ok) {
               alert(result.message || "Đăng ký thành công! Bạn có thể tiến hành đăng nhập.");
               this.reset(); // Xóa trắng dữ liệu trên form
+              document.getElementById("photographerPhotoPreview").replaceChildren();
+              status.textContent = "";
               switchView("view-login"); // Tự động chuyển về màn hình đăng nhập
             } else {
-              alert(
-                "Đăng ký thất bại: " + (result.message || "Lỗi không xác định"),
-              );
+              throw new Error(result.message || "Đăng ký thất bại.");
             }
           } catch (error) {
             console.error("Lỗi khi kết nối tới Server:", error);
-            alert(
-              "Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại Backend!",
-            );
+            status.textContent = error.message || "Không thể kết nối tới máy chủ.";
+          } finally {
+            submitButton.disabled = false;
           }
         });
+
+      document.getElementById("regPhotographerPhotos").addEventListener("change", (event) => {
+        const files = Array.from(event.target.files);
+        const preview = document.getElementById("photographerPhotoPreview");
+        preview.replaceChildren();
+        if (files.length > 12) {
+          document.getElementById("photographerRegisterStatus").textContent = "Chỉ được chọn tối đa 12 ảnh.";
+          event.target.value = "";
+          return;
+        }
+        document.getElementById("photographerRegisterStatus").textContent = "";
+        for (const file of files) {
+          const image = document.createElement("img");
+          image.alt = file.name;
+          image.src = URL.createObjectURL(file);
+          image.onload = () => URL.revokeObjectURL(image.src);
+          preview.append(image);
+        }
+      });
     </script>
   </body>
 </html>

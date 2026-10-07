@@ -5,6 +5,7 @@ const requireAuth = require("../middleware/requireAuth");
 
 router.get("/", photographerController.listPhotographers);
 router.get("/me", requireAuth, photographerController.getOwnPhotographerProfile);
+router.put("/me", requireAuth, photographerController.updateOwnPhotographerProfile);
 router.get("/:id", photographerController.getPhotographer);
 
 module.exports = router;

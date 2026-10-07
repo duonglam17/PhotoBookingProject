@@ -32,6 +32,32 @@ CREATE TABLE IF NOT EXISTS photographer_profiles (
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS photographer_photos (
+  photo_id INT NOT NULL AUTO_INCREMENT,
+  photographer_id INT NOT NULL,
+  photo_url VARCHAR(500) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (photo_id),
+  KEY ix_photographer_photos_profile (photographer_id, photo_id),
+  CONSTRAINT fk_photographer_photos_profile
+    FOREIGN KEY (photographer_id) REFERENCES photographer_profiles(photographer_id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS photographer_profile_details (
+  photographer_id INT NOT NULL,
+  bio TEXT NULL,
+  specialties VARCHAR(255) NULL,
+  languages VARCHAR(255) NULL,
+  work_style VARCHAR(100) NULL,
+  cover_url VARCHAR(500) NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (photographer_id),
+  CONSTRAINT fk_photographer_profile_details_profile
+    FOREIGN KEY (photographer_id) REFERENCES photographer_profiles(photographer_id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS services (
   service_id INT NOT NULL AUTO_INCREMENT,
   service_name VARCHAR(100) NOT NULL,

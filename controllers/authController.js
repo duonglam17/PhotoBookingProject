@@ -13,6 +13,7 @@ exports.register = async (req, res) => {
     experience,
     equipment,
     portfolioUrl,
+    photoUrls = [],
   } = req.body;
   const accountRole = role === "photographer" ? "photographer" : role === "client" ? "client" : null;
   if (!accountRole) {
@@ -38,6 +39,14 @@ exports.register = async (req, res) => {
   }
   if (accountRole === "photographer" && (!location?.trim() || !experience?.trim() || !equipment?.trim())) {
     return res.status(400).json({ message: "Vui lòng nhập địa điểm, kinh nghiệm và thiết bị chụp." });
+  }
+  if (accountRole === "photographer" && (
+    !Array.isArray(photoUrls) ||
+    photoUrls.length < 1 ||
+    photoUrls.length > 12 ||
+    photoUrls.some((url) => typeof url !== "string" || !/^\/images\/uploads\/[A-Za-z0-9._-]+$/.test(url))
+  )) {
+    return res.status(400).json({ message: "Vui lòng tải lên từ 1 đến 12 ảnh hợp lệ." });
   }
   if (accountRole === "photographer" && portfolioUrl?.trim()) {
     try {
@@ -78,12 +87,18 @@ exports.register = async (req, res) => {
     const newUserId = userResult.insertId;
 
     if (accountRole === "photographer") {
-      await connection.execute(
+      const [profileResult] = await connection.execute(
         `INSERT INTO photographer_profiles
          (user_id, location, experience, equipment, portfolio_url, status)
          VALUES (?, ?, ?, ?, ?, 'pending')`,
         [newUserId, location.trim(), experience.trim(), equipment.trim(), portfolioUrl?.trim() || null],
       );
+      for (const photoUrl of photoUrls) {
+        await connection.execute(
+          "INSERT INTO photographer_photos (photographer_id, photo_url) VALUES (?, ?)",
+          [profileResult.insertId, photoUrl],
+        );
+      }
     }
 
     await connection.commit();

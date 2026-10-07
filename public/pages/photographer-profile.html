@@ -39,6 +39,8 @@
         <img id="coverImage" class="cover-image" alt="Ảnh bìa của nhiếp ảnh gia" />
         <div class="cover-shade"></div>
         <a class="back-link" href="/pages/photographers.html"><span aria-hidden="true">←</span> Tất cả nhiếp ảnh gia</a>
+        <button id="changeCoverButton" class="cover-edit-button" type="button" hidden>◎ Đổi ảnh bìa</button>
+        <input id="coverFileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
       </section>
 
       <section class="profile-heading" aria-label="Thông tin nhiếp ảnh gia">
@@ -46,6 +48,8 @@
           <img id="avatarImage" class="profile-avatar" alt="Ảnh đại diện nhiếp ảnh gia" />
           <span id="avatarFallback" class="avatar-fallback" hidden></span>
         </div>
+        <input id="avatarFileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
+        <button id="changeAvatarButton" class="avatar-edit-button" type="button" aria-label="Đổi ảnh đại diện" hidden>◎</button>
         <div class="identity-copy">
           <p class="eyebrow">NHIẾP ẢNH GIA POTONOW</p>
           <h1 id="photographerName">Đang tải hồ sơ...</h1>
@@ -55,6 +59,7 @@
             <span id="locationLabel"></span>
           </div>
         </div>
+        <button id="editProfileButton" class="edit-profile-button" type="button" hidden>✎ Chỉnh sửa hồ sơ</button>
         <a id="bookButton" class="book-button" href="#" aria-disabled="true">
           <span aria-hidden="true">＋</span> Đặt lịch chụp
         </a>
@@ -69,6 +74,10 @@
       <div class="profile-layout" id="profileContent" hidden>
         <aside class="profile-aside">
           <section class="about-block">
+            <h2>Giới thiệu</h2>
+            <p id="photographerBio"></p>
+          </section>
+          <section class="about-block">
             <h2>Thiết bị chụp</h2>
             <p id="photographerEquipment"></p>
           </section>
@@ -80,11 +89,35 @@
             <h2>Kinh nghiệm</h2>
             <p id="experienceDetail" class="detail-copy"></p>
           </section>
+          <section class="aside-section">
+            <h2>Thể loại chụp</h2>
+            <div id="specialtyTags" class="tag-list"></div>
+          </section>
+          <section class="aside-section">
+            <h2>Ngôn ngữ</h2>
+            <div id="languageTags" class="tag-list"></div>
+          </section>
+          <section class="aside-section">
+            <h2>Mô hình làm việc</h2>
+            <div id="workStyleTags" class="tag-list"></div>
+          </section>
           <a id="portfolioLink" class="portfolio-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Xem portfolio bên ngoài <span aria-hidden="true">↗</span></a>
           <section class="aside-section stats-section" aria-label="Thống kê">
             <div class="stat-item"><strong id="bookingCount">0</strong><span>buổi chụp</span></div>
             <div class="stat-item"><strong id="reviewCountAside">0</strong><span>đánh giá</span></div>
           </section>
+          <form id="profileEditForm" class="profile-edit-form" hidden>
+            <label>Giới thiệu<textarea id="editBio" maxlength="2000" rows="3"></textarea></label>
+            <label>Thiết bị<input id="editEquipment" maxlength="5000" required /></label>
+            <label>Khu vực hoạt động<input id="editLocation" maxlength="255" required /></label>
+            <label>Kinh nghiệm<select id="editExperience" required>
+              <option>Dưới 1 năm</option><option>Từ 1-3 năm</option><option>Trên 3 năm</option><option>Trên 5 năm</option>
+            </select></label>
+            <label>Thể loại chụp<input id="editSpecialties" maxlength="255" placeholder="Cá nhân, Gia đình, Sự kiện" /></label>
+            <label>Ngôn ngữ<input id="editLanguages" maxlength="255" placeholder="Tiếng Việt, Tiếng Anh" /></label>
+            <label>Mô hình làm việc<input id="editWorkStyle" maxlength="100" placeholder="Cá nhân" /></label>
+            <button id="saveProfileButton" class="profile-save-button" type="submit">Lưu hồ sơ</button>
+          </form>
         </aside>
 
         <section class="work-section">
@@ -98,13 +131,22 @@
                 <span id="reviewCountLabel" class="review-count">0</span>
               </button>
             </div>
+            <div class="gallery-actions" id="galleryActions" hidden>
+              <label class="gallery-action-button">＋ Thêm ảnh<input id="galleryFileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden /></label>
+              <button id="deletePhotosButton" class="gallery-action-button" type="button">⌫ Xóa ảnh</button>
+              <button id="sortPhotosButton" class="gallery-action-button" type="button">☷ Sắp xếp</button>
+              <button id="saveGalleryButton" class="gallery-action-button gallery-save-button" type="button" hidden>Lưu thay đổi</button>
+            </div>
             <a id="secondaryBookButton" class="small-book-link" href="#">Đặt lịch <span aria-hidden="true">→</span></a>
           </div>
+
+          <p id="galleryGuidance" class="gallery-guidance" hidden>Ảnh trong bộ sưu tập phải do chính bạn chụp. Không đăng ảnh khách hàng khi chưa được sự cho phép.</p>
+            <p id="profileSaveStatus" class="profile-save-status gallery-save-status" role="status" aria-live="polite"></p>
 
           <section class="tab-panel photo-panel" id="photosPanel" role="tabpanel" aria-labelledby="photosTab">
             <div class="portfolio-intro">
               <div>
-                <h2>Portfolio</h2>
+                <h2>Ảnh đã chụp</h2>
                 <p>Những khoảnh khắc được lưu giữ qua ống kính.</p>
               </div>
               <span id="ratingSummary" class="rating-summary"></span>
@@ -113,7 +155,7 @@
             <div id="portfolioEmpty" class="empty-panel">
               <span class="empty-icon" aria-hidden="true">▧</span>
               <h3>Chưa có album ảnh</h3>
-              <p>Hồ sơ hiện lưu liên kết portfolio bên ngoài; thư viện ảnh nội bộ chưa được thiết lập trong database.</p>
+              <p>Nhiếp ảnh gia chưa cập nhật ảnh.</p>
             </div>
           </section>
 

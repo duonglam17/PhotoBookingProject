@@ -8,13 +8,13 @@ Run the idempotent setup command after configuring MySQL:
 npm run setup:db
 ```
 
-This creates the tables represented by the supplied database document and the missing blog tables, then adds default packages and example blog posts. The schema uses `CREATE TABLE IF NOT EXISTS`; it does not modify existing table definitions or delete data. It works for a new database or one whose tables have already been imported.
+This creates the tables represented by the supplied database schema, including the photographer photo gallery table, and missing blog tables, then adds default packages and example blog posts. The schema uses `CREATE TABLE IF NOT EXISTS`; it does not modify existing table definitions or delete data. It works for a new database or one whose tables have already been imported.
 
 To add optional development photographer accounts, run `database/photographer-seed.sql` separately in MySQL or phpMyAdmin.
 
 The development photographer seed uses `anh.photo@example.invalid`, `nam.photo@example.invalid`, or `ha.photo@example.invalid` with password `PotonowDemo2026!`. Do not use these sample accounts in production.
 
-New photographer registrations are stored with status `pending` and are not public until reviewed. To approve one, an administrator can set its `photographer_profiles.status` to `active`.
+New photographer registrations are stored with status `pending` and are not public until reviewed. Registration accepts 1 to 12 uploaded gallery photos; the first photo is used on photographer listings. To approve one, an administrator can set its `photographer_profiles.status` to `active`.
 
 ## Run the application
 

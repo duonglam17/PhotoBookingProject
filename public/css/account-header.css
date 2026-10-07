@@ -1,3 +1,9 @@
+.account-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .signed-in-name {
   display: inline-block;
   max-width: 180px;
@@ -5,6 +11,45 @@
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
+}
+
+.account-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  min-width: 160px;
+  padding: 5px;
+  border: 1px solid #e1e8ef;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(19, 36, 59, 0.14);
+}
+
+.account-menu a,
+.account-menu button {
+  display: block;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #13243b;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu a:hover,
+.account-menu button:hover,
+.account-menu a:focus-visible,
+.account-menu button:focus-visible {
+  outline: none;
+  background: #f4f8fb;
+  color: #e95700;
 }
 
 @media (max-width: 600px) {

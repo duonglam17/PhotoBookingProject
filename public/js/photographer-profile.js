@@ -2,6 +2,9 @@ const profilePage = document.getElementById('profilePage');
 const profileContent = document.getElementById('profileContent');
 const profileError = document.getElementById('profileError');
 const profileErrorMessage = document.getElementById('profileErrorMessage');
+const parameters = new URLSearchParams(window.location.search);
+const ownProfile = parameters.get('me') === '1';
+const profileState = { photographer: null, photos: [], coverUrl: null, sorting: false };
 
 function safeImageUrl(value) {
   const imageUrl = String(value || '').trim();
@@ -36,6 +39,7 @@ function setProfileImage(imageElement, imageUrl) {
   }
 
   imageElement.src = safeUrl;
+  imageElement.hidden = false;
   imageElement.addEventListener('error', () => {
     imageElement.hidden = true;
   }, { once: true });
@@ -83,6 +87,9 @@ function renderReviews(reviews) {
 }
 
 function renderProfile(photographer) {
+  profileState.photographer = photographer;
+  profileState.photos = Array.isArray(photographer.photos) ? photographer.photos.slice() : [];
+  profileState.coverUrl = photographer.cover || profileState.photos[0] || null;
   const locations = Array.isArray(photographer.locations) ? photographer.locations : [];
   const rating = Number(photographer.rating) || 0;
   const reviewCount = Number(photographer.reviewCount) || 0;
@@ -93,6 +100,7 @@ function renderProfile(photographer) {
   document.getElementById('experienceLabel').textContent = photographer.experience || 'Nhiếp ảnh gia Potonow';
   document.getElementById('locationLabel').textContent = locations.join(' · ') || 'Chưa cập nhật khu vực';
   document.getElementById('photographerEquipment').textContent = photographer.equipment || 'Chưa cập nhật thiết bị chụp.';
+  document.getElementById('photographerBio').textContent = photographer.bio || 'Chưa cập nhật giới thiệu.';
   document.getElementById('experienceDetail').textContent = photographer.experience || 'Chưa cập nhật kinh nghiệm.';
   document.getElementById('bookingCount').textContent = formatCount(photographer.bookingCount);
   document.getElementById('reviewCountLabel').textContent = formatCount(reviewCount);
@@ -109,10 +117,13 @@ function renderProfile(photographer) {
   document.getElementById('locationTags').innerHTML = locations.length
     ? locations.map((location) => `<span>${escapeHtml(location)}</span>`).join('')
     : '<span>Chưa cập nhật</span>';
+  document.getElementById('specialtyTags').innerHTML = renderTags(photographer.specialties);
+  document.getElementById('languageTags').innerHTML = renderTags(photographer.languages);
+  document.getElementById('workStyleTags').innerHTML = renderTags(photographer.workStyle);
 
-  setProfileImage(document.getElementById('coverImage'), photographer.cover);
-  setProfileImage(document.getElementById('avatarImage'), photographer.avatar);
-  if (!safeImageUrl(photographer.avatar)) {
+  setProfileImage(document.getElementById('coverImage'), profileState.coverUrl);
+  setProfileImage(document.getElementById('avatarImage'), profileState.photos[0] || photographer.avatar);
+  if (!safeImageUrl(profileState.photos[0] || photographer.avatar)) {
     const avatarFallback = document.getElementById('avatarFallback');
     avatarFallback.textContent = (photographer.name || 'P').trim().charAt(0).toUpperCase();
     avatarFallback.hidden = false;
@@ -124,6 +135,7 @@ function renderProfile(photographer) {
     portfolioLink.href = portfolioUrl;
     portfolioLink.hidden = false;
   }
+  renderPortfolio();
   renderReviews(Array.isArray(photographer.reviews) ? photographer.reviews : []);
 
   for (const buttonId of ['bookButton', 'secondaryBookButton']) {
@@ -133,12 +145,227 @@ function renderProfile(photographer) {
   }
 
   const profileNotice = document.getElementById('profileNotice');
-  profileNotice.hidden = Boolean(photographer.isVerified);
-  document.getElementById('profileNoticeText').textContent = photographer.status === 'pending'
-    ? 'Hồ sơ của bạn đang được Potonow xét duyệt. Chỉ bạn mới xem được trang này cho đến khi hồ sơ được duyệt.'
-    : 'Hồ sơ này đang chờ Potonow xác minh thông tin.';
+  profileNotice.hidden = ownProfile || Boolean(photographer.isVerified);
+  document.getElementById('profileNoticeText').textContent = 'Hồ sơ này đang chờ Potonow xác minh thông tin.';
+  setupOwnerEditor(photographer);
   profilePage.setAttribute('aria-busy', 'false');
   profileContent.hidden = false;
+}
+
+function renderPortfolio() {
+  const portfolioGrid = document.getElementById('portfolioGrid');
+  const portfolioEmpty = document.getElementById('portfolioEmpty');
+  const validPhotos = profileState.photos.map(safeImageUrl).filter(Boolean);
+  portfolioGrid.innerHTML = validPhotos.map((photoUrl, index) => `
+    <figure class="portfolio-item${profileState.sorting ? ' is-sorting' : ''}" draggable="${profileState.sorting && ownProfile}" data-photo-index="${index}">
+      <img class="portfolio-photo" src="${escapeHtml(photoUrl)}" alt="Ảnh ${index + 1} của ${escapeHtml(profileState.photographer.name || 'nhiếp ảnh gia')}" loading="lazy" />
+      ${ownProfile ? `<label class="photo-select"><input type="checkbox" value="${index}" aria-label="Chọn ảnh ${index + 1}" /><span></span></label>` : ''}
+      ${profileState.sorting && ownProfile ? '<span class="drag-hint" aria-hidden="true">↕</span>' : ''}
+    </figure>
+  `).join('');
+  portfolioEmpty.hidden = validPhotos.length > 0;
+  document.getElementById('avatarImage').src = safeImageUrl(validPhotos[0]) || '';
+  document.getElementById('avatarImage').hidden = !validPhotos.length;
+  document.getElementById('avatarFallback').hidden = validPhotos.length > 0;
+  if (validPhotos.length) {
+    document.getElementById('coverImage').src = safeImageUrl(profileState.coverUrl || validPhotos[0]);
+    document.getElementById('coverImage').hidden = false;
+  }
+  if (profileState.sorting && ownProfile) setupPhotoDragSort(portfolioGrid);
+}
+
+function renderTags(value) {
+  const tags = String(value || '').split(/[,;|]/).map((tag) => tag.trim()).filter(Boolean);
+  return tags.length
+    ? tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')
+    : '<span>Chưa cập nhật</span>';
+}
+
+function setupOwnerEditor(photographer) {
+  if (!ownProfile) return;
+  document.getElementById('editProfileButton').hidden = false;
+  document.getElementById('galleryActions').hidden = false;
+  document.getElementById('galleryGuidance').hidden = false;
+  document.getElementById('changeCoverButton').hidden = false;
+  document.getElementById('changeAvatarButton').hidden = false;
+  document.getElementById('secondaryBookButton').hidden = true;
+  document.getElementById('editBio').value = photographer.bio || '';
+  document.getElementById('editEquipment').value = photographer.equipment || '';
+  document.getElementById('editLocation').value = (photographer.locations || []).join(', ');
+  document.getElementById('editExperience').value = photographer.experience || 'Dưới 1 năm';
+  document.getElementById('editSpecialties').value = photographer.specialties || '';
+  document.getElementById('editLanguages').value = photographer.languages || '';
+  document.getElementById('editWorkStyle').value = photographer.workStyle || '';
+
+  document.getElementById('editProfileButton').addEventListener('click', () => {
+    const form = document.getElementById('profileEditForm');
+    form.hidden = !form.hidden;
+    document.getElementById('editProfileButton').textContent = form.hidden ? '✎ Chỉnh sửa hồ sơ' : '× Đóng chỉnh sửa';
+    if (!form.hidden) form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+  document.getElementById('galleryFileInput').addEventListener('change', uploadGalleryPhotos);
+  document.getElementById('coverFileInput').addEventListener('change', uploadCoverPhoto);
+  document.getElementById('saveGalleryButton').addEventListener('click', saveOwnProfile);
+  document.getElementById('avatarFileInput').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const url = await uploadImage(file);
+    if (url) {
+      profileState.photos.unshift(url);
+      if (profileState.photos.length > 12) profileState.photos.pop();
+      renderPortfolio();
+      markProfileDirty();
+    }
+    event.target.value = '';
+  });
+  document.getElementById('changeCoverButton').addEventListener('click', () => document.getElementById('coverFileInput').click());
+  document.getElementById('changeAvatarButton').addEventListener('click', () => document.getElementById('avatarFileInput').click());
+  document.getElementById('deletePhotosButton').addEventListener('click', () => {
+    const selected = [...document.querySelectorAll('.photo-select input:checked')]
+      .map((checkbox) => Number(checkbox.value));
+    if (!selected.length) {
+      document.querySelector('.portfolio-grid').classList.toggle('selecting');
+      return;
+    }
+    profileState.photos = profileState.photos.filter((photo, index) => !selected.includes(index));
+    renderPortfolio();
+    markProfileDirty();
+  });
+  document.getElementById('sortPhotosButton').addEventListener('click', (event) => {
+    profileState.sorting = !profileState.sorting;
+    event.currentTarget.classList.toggle('active', profileState.sorting);
+    event.currentTarget.textContent = profileState.sorting ? '✓ Xong sắp xếp' : '☷ Sắp xếp';
+    renderPortfolio();
+  });
+  document.getElementById('profileEditForm').addEventListener('submit', saveOwnProfile);
+}
+
+function setupPhotoDragSort(grid) {
+  let draggedIndex = null;
+  grid.querySelectorAll('.portfolio-item').forEach((item) => {
+    item.addEventListener('dragstart', () => { draggedIndex = Number(item.dataset.photoIndex); });
+    item.addEventListener('dragover', (event) => event.preventDefault());
+    item.addEventListener('drop', (event) => {
+      event.preventDefault();
+      const targetIndex = Number(item.dataset.photoIndex);
+      if (draggedIndex === null || draggedIndex === targetIndex) return;
+      const [photo] = profileState.photos.splice(draggedIndex, 1);
+      profileState.photos.splice(targetIndex, 0, photo);
+      renderPortfolio();
+      markProfileDirty();
+    });
+  });
+}
+
+async function uploadImage(file) {
+  const status = document.getElementById('profileSaveStatus');
+  if (!/^image\/(jpeg|png|gif|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) {
+    status.textContent = 'Chỉ hỗ trợ JPG, PNG, GIF hoặc WEBP tối đa 5 MB.';
+    return null;
+  }
+  const formData = new FormData();
+  formData.append('image', file);
+  try {
+    const response = await fetch('/api/upload', { method: 'POST', body: formData });
+    const result = await response.json();
+    if (!response.ok || !result.url) throw new Error(result.error || 'Không thể tải ảnh lên.');
+    status.textContent = 'Ảnh đã tải lên. Nhấn Lưu hồ sơ để áp dụng thay đổi.';
+    return result.url;
+  } catch (error) {
+    status.textContent = error.message || 'Không thể tải ảnh lên.';
+    return null;
+  }
+}
+
+async function uploadGalleryPhotos(event) {
+  const selectedFiles = Array.from(event.target.files);
+  const remaining = 12 - profileState.photos.length;
+  if (selectedFiles.length > remaining) {
+    document.getElementById('profileSaveStatus').textContent = `Bộ sưu tập chỉ chứa tối đa 12 ảnh; hiện còn thêm được ${remaining} ảnh.`;
+    event.target.value = '';
+    return;
+  }
+  for (const file of selectedFiles) {
+    const url = await uploadImage(file);
+    if (url) profileState.photos.push(url);
+  }
+  renderPortfolio();
+  event.target.value = '';
+}
+
+async function uploadCoverPhoto(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const url = await uploadImage(file);
+    if (url) {
+      profileState.coverUrl = url;
+      setProfileImage(document.getElementById('coverImage'), url);
+      markProfileDirty();
+    }
+  }
+  event.target.value = '';
+}
+
+function markProfileDirty() {
+  document.getElementById('saveGalleryButton').hidden = false;
+}
+
+async function saveOwnProfile(event) {
+  event?.preventDefault();
+  const button = document.getElementById('saveProfileButton');
+  const galleryButton = document.getElementById('saveGalleryButton');
+  const status = document.getElementById('profileSaveStatus');
+  button.disabled = true;
+  galleryButton.disabled = true;
+  status.textContent = 'Đang lưu hồ sơ...';
+  try {
+    const response = await fetch('/api/photographers/me', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+      },
+      body: JSON.stringify({
+        location: document.getElementById('editLocation').value.trim(),
+        experience: document.getElementById('editExperience').value,
+        equipment: document.getElementById('editEquipment').value.trim(),
+        bio: document.getElementById('editBio').value.trim(),
+        specialties: document.getElementById('editSpecialties').value.trim(),
+        languages: document.getElementById('editLanguages').value.trim(),
+        workStyle: document.getElementById('editWorkStyle').value.trim(),
+        coverUrl: profileState.coverUrl,
+        photoUrls: profileState.photos,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || 'Không thể lưu hồ sơ.');
+    status.textContent = 'Đã lưu hồ sơ.';
+    galleryButton.hidden = true;
+    profileState.photographer = {
+      ...profileState.photographer,
+      bio: document.getElementById('editBio').value.trim(),
+      equipment: document.getElementById('editEquipment').value.trim(),
+      locations: document.getElementById('editLocation').value.split(',').map((item) => item.trim()).filter(Boolean),
+      experience: document.getElementById('editExperience').value,
+      specialties: document.getElementById('editSpecialties').value.trim(),
+      languages: document.getElementById('editLanguages').value.trim(),
+      workStyle: document.getElementById('editWorkStyle').value.trim(),
+    };
+    document.getElementById('photographerBio').textContent = profileState.photographer.bio || 'Chưa cập nhật giới thiệu.';
+    document.getElementById('photographerEquipment').textContent = profileState.photographer.equipment;
+    document.getElementById('experienceDetail').textContent = profileState.photographer.experience;
+    document.getElementById('locationLabel').textContent = profileState.photographer.locations.join(' · ');
+    document.getElementById('locationTags').innerHTML = profileState.photographer.locations.map((location) => `<span>${escapeHtml(location)}</span>`).join('');
+    document.getElementById('specialtyTags').innerHTML = renderTags(profileState.photographer.specialties);
+    document.getElementById('languageTags').innerHTML = renderTags(profileState.photographer.languages);
+    document.getElementById('workStyleTags').innerHTML = renderTags(profileState.photographer.workStyle);
+    renderPortfolio();
+  } catch (error) {
+    status.textContent = error.message || 'Không thể lưu hồ sơ.';
+  } finally {
+    button.disabled = false;
+    galleryButton.disabled = false;
+  }
 }
 
 function escapeHtml(value) {
@@ -168,9 +395,7 @@ function setupTabs() {
 
 async function loadProfile() {
   setupTabs();
-  const parameters = new URLSearchParams(window.location.search);
   const photographerId = parameters.get('id');
-  const ownProfile = parameters.get('me') === '1';
   if (!ownProfile && (!photographerId || !/^\d+$/.test(photographerId))) {
     showProfileError('Hãy mở hồ sơ từ danh sách nhiếp ảnh gia để xem thông tin chi tiết.');
     return;

@@ -50,8 +50,9 @@ function renderCard(photographer, index) {
     ? `<img class="cover-image" src="${escapeHtml(photographer.cover)}" alt="Ảnh bìa của ${escapeHtml(photographer.name)}" loading="lazy" />`
     : '<div class="cover-placeholder"><span>Ảnh bìa chưa cập nhật</span></div>';
 
+  const profileUrl = `/pages/photographer-profile.html?id=${encodeURIComponent(photographer.id)}`;
   return `
-    <article class="photographer-card" style="animation-delay: ${index * 45}ms">
+    <a class="photographer-card" href="${profileUrl}" style="animation-delay: ${index * 45}ms">
       <div class="cover-wrap">
         ${cover}
       </div>
@@ -66,10 +67,10 @@ function renderCard(photographer, index) {
         </div>
         <p class="bio"><strong>Thiết bị</strong><br />${escapeHtml(photographer.equipment || 'Chưa cập nhật thiết bị chụp.')}</p>
         <div class="card-actions">
-          <a class="detail-btn" href="/pages/photographer-profile.html?id=${photographer.id}">Xem hồ sơ <span>→</span></a>
+          <span class="detail-btn">Xem hồ sơ <span>→</span></span>
         </div>
       </div>
-    </article>
+    </a>
   `;
 }
 
