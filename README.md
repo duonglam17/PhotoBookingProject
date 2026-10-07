@@ -28,6 +28,10 @@ Sign out and back in with that account. Login redirects administrators to `/page
 
 The admin dashboard includes a **Bài viết** tab. Paste a public article URL and choose **Lấy thông tin** to preview its page title, Open Graph image, and description before editing and saving it as a draft or published post. Blog create, update, delete, and metadata preview endpoints require the admin role.
 
+## Password reset email
+
+Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM` in `.env` using credentials from your mail provider. The reset flow sends a six-digit one-time code that expires after 10 minutes; database setup creates the reset-code table. Never commit real SMTP credentials.
+
 ## Run the application
 
 1. Copy `.env.example` to `.env` and set the MySQL connection values and a private `JWT_SECRET`.

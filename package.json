@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node --use-system-ca server.js",
+    "dev": "nodemon --exec \"node --use-system-ca\" server.js",
     "setup:db": "node scripts/setup-database.js"
   },
   "keywords": [],
@@ -19,7 +19,8 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
-    "mysql2": "^3.24.3"
+    "mysql2": "^3.24.3",
+    "nodemailer": "^10.0.15"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

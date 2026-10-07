@@ -17,6 +17,18 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE KEY uq_users_phone (phone)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS password_reset_codes (
+  user_id INT NOT NULL,
+  code_hash CHAR(64) NOT NULL,
+  requested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id),
+  CONSTRAINT fk_password_reset_codes_user
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS photographer_profiles (
   photographer_id INT NOT NULL AUTO_INCREMENT,
   user_id INT NOT NULL,
