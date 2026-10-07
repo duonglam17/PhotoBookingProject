@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yêu cầu đặt lịch và lịch chụp của nhiếp ảnh gia Potonow." />
+    <title>Lịch chụp của tôi | Potonow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/photographer-bookings.css" />
+    <link rel="stylesheet" href="/css/account-header.css" />
+  </head>
+  <body>
+    <header class="schedule-header">
+      <a class="schedule-brand" href="/" aria-label="Potonow trang chủ"><span class="brand-mark" aria-hidden="true"></span>potonow</a>
+      <nav aria-label="Điều hướng chính">
+        <a href="/pages/photographers.html">Nhiếp ảnh gia</a>
+        <a href="/pages/photographer-profile.html?me=1">Hồ sơ của tôi</a>
+        <a class="active" href="/pages/photographer-bookings.html">Lịch chụp</a>
+      </nav>
+      <a class="account-link" data-account-link href="/pages/auth.html">Đăng nhập</a>
+    </header>
+
+    <main class="schedule-page">
+      <section class="schedule-heading">
+        <div><p class="eyebrow">POTONOW / KHÔNG GIAN NHIẾP ẢNH GIA</p><h1>Lịch chụp của tôi</h1><p>Theo dõi yêu cầu mới và các buổi chụp đã xác nhận.</p></div>
+        <button id="refreshSchedule" class="refresh-button" type="button" aria-label="Làm mới lịch" title="Làm mới">↻</button>
+      </section>
+
+      <section id="newBookingAlert" class="new-booking-alert" hidden aria-live="polite">
+        <span class="alert-icon" aria-hidden="true">!</span>
+        <div><strong id="newBookingAlertTitle">Bạn có yêu cầu đặt lịch mới</strong><p id="newBookingAlertCopy"></p></div>
+        <a href="#requestsSection">Xem yêu cầu <span aria-hidden="true">↓</span></a>
+      </section>
+
+      <section class="schedule-metrics" aria-label="Tổng quan lịch chụp">
+        <article><span>Yêu cầu chờ xác nhận</span><strong id="pendingCount">—</strong></article>
+        <article><span>Buổi đã xác nhận</span><strong id="confirmedCount">—</strong></article>
+        <article><span>Buổi sắp tới</span><strong id="upcomingCount">—</strong></article>
+      </section>
+
+      <section id="requestsSection" class="schedule-section">
+        <div class="section-heading"><div><h2>Yêu cầu mới</h2><p>Chỉ lịch dành cho bạn mới xuất hiện tại đây.</p></div><span id="requestCountLabel" class="count-label"></span></div>
+        <div id="requestList" class="booking-list" aria-live="polite"></div>
+      </section>
+
+      <section class="schedule-section calendar-section">
+        <div class="section-heading"><div><h2>Lịch đã xác nhận</h2><p>Các ngày có lịch sẽ được đánh dấu màu cam.</p></div></div>
+        <div class="calendar-layout">
+          <section class="month-calendar" aria-label="Lịch tháng">
+            <div class="month-calendar-heading">
+              <button id="previousCalendarMonth" class="month-nav" type="button" aria-label="Tháng trước">‹</button>
+              <h3 id="calendarMonthLabel"></h3>
+              <button id="nextCalendarMonth" class="month-nav" type="button" aria-label="Tháng sau">›</button>
+            </div>
+            <div class="calendar-weekdays" aria-hidden="true"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+            <div id="scheduleCalendarDays" class="calendar-days" role="group" aria-label="Chọn ngày xem lịch"></div>
+            <p class="calendar-legend"><span aria-hidden="true"></span> Có lịch đã xác nhận</p>
+          </section>
+          <section class="selected-day-schedule" aria-live="polite">
+            <h3 id="selectedScheduleDate"></h3>
+            <div id="confirmedList" class="booking-list"></div>
+          </section>
+        </div>
+        <input id="scheduleDate" type="hidden" />
+      </section>
+      <p id="scheduleStatus" class="schedule-status" role="status" aria-live="polite">Đang tải lịch chụp...</p>
+    </main>
+
+    <footer class="schedule-footer"><a href="/">potonow</a><span>Không bỏ lỡ lịch hẹn của bạn</span></footer>
+    <script src="/js/photographer-bookings.js"></script>
+    <script src="/js/account-header.js"></script>
+  </body>
+</html>

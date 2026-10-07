@@ -161,3 +161,126 @@ exports.listMyBookings = async (req, res) => {
     res.status(500).json({ success: false, message: "Không thể tải lịch sử đặt lịch." });
   }
 };
+
+async function getPhotographerId(userId) {
+  const [profiles] = await db.execute(
+    "SELECT photographer_id AS id FROM photographer_profiles WHERE user_id = ?",
+    [userId],
+  );
+  return profiles[0]?.id || null;
+}
+
+function parseBookingDetails(value) {
+  if (!value) return {};
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" ? parsed : { note: String(value) };
+  } catch {
+    return { note: String(value) };
+  }
+}
+
+exports.getPhotographerBookings = async (req, res) => {
+  if (req.auth.role !== "photographer") {
+    return res.status(403).json({ success: false, message: "Chỉ nhiếp ảnh gia mới xem được lịch của mình." });
+  }
+
+  try {
+    const photographerId = await getPhotographerId(req.auth.userId);
+    if (!photographerId) {
+      return res.status(404).json({ success: false, message: "Tài khoản chưa có hồ sơ nhiếp ảnh gia." });
+    }
+
+    const [rows] = await db.execute(
+      `SELECT
+         b.booking_id AS bookingId,
+         b.booking_code AS bookingCode,
+         b.booking_date AS bookingDate,
+         b.start_time AS startTime,
+         b.location,
+         b.notes,
+         b.status,
+         b.created_at AS createdAt,
+         package.package_name AS packageName,
+         package.price AS packagePrice,
+         package.duration_minutes AS durationMinutes,
+         client.full_name AS clientName,
+         client.phone AS clientPhone,
+         client.email AS clientEmail
+       FROM bookings b
+       INNER JOIN packages package ON package.package_id = b.package_id
+       INNER JOIN users client ON client.user_id = b.user_id
+       WHERE b.photographer_id = ?
+       ORDER BY b.booking_date ASC, b.start_time ASC, b.created_at DESC`,
+      [photographerId],
+    );
+    const data = rows.map((row) => {
+      const details = parseBookingDetails(row.notes);
+      return { ...row, ...details, notes: details.note || "" };
+    });
+    res.json({
+      success: true,
+      data,
+      pendingCount: data.filter((booking) => booking.status === "pending").length,
+    });
+  } catch (error) {
+    console.error("Lỗi tải lịch nhiếp ảnh gia:", error);
+    res.status(500).json({ success: false, message: "Không thể tải lịch chụp của nhiếp ảnh gia." });
+  }
+};
+
+exports.getPhotographerBookingNotifications = async (req, res) => {
+  if (req.auth.role !== "photographer") {
+    return res.status(403).json({ success: false, message: "Chỉ nhiếp ảnh gia mới xem được thông báo lịch chụp." });
+  }
+  try {
+    const photographerId = await getPhotographerId(req.auth.userId);
+    if (!photographerId) {
+      return res.status(404).json({ success: false, message: "Tài khoản chưa có hồ sơ nhiếp ảnh gia." });
+    }
+    const [[row]] = await db.execute(
+      "SELECT COUNT(*) AS pendingCount FROM bookings WHERE photographer_id = ? AND status = 'pending'",
+      [photographerId],
+    );
+    res.json({ success: true, pendingCount: Number(row.pendingCount) || 0 });
+  } catch (error) {
+    console.error("Lỗi tải thông báo lịch chụp:", error);
+    res.status(500).json({ success: false, message: "Không thể tải thông báo lịch chụp." });
+  }
+};
+
+exports.confirmPhotographerBooking = async (req, res) => {
+  if (req.auth.role !== "photographer") {
+    return res.status(403).json({ success: false, message: "Chỉ nhiếp ảnh gia mới xác nhận được lịch chụp." });
+  }
+  if (!/^\d+$/.test(req.params.bookingId)) {
+    return res.status(400).json({ success: false, message: "Mã lịch chụp không hợp lệ." });
+  }
+
+  try {
+    const photographerId = await getPhotographerId(req.auth.userId);
+    if (!photographerId) {
+      return res.status(404).json({ success: false, message: "Tài khoản chưa có hồ sơ nhiếp ảnh gia." });
+    }
+    const [result] = await db.execute(
+      `UPDATE bookings
+       SET status = 'confirmed'
+       WHERE booking_id = ? AND photographer_id = ? AND status = 'pending'`,
+      [req.params.bookingId, photographerId],
+    );
+    if (!result.affectedRows) {
+      const [rows] = await db.execute(
+        "SELECT status FROM bookings WHERE booking_id = ? AND photographer_id = ?",
+        [req.params.bookingId, photographerId],
+      );
+      if (!rows.length) {
+        return res.status(404).json({ success: false, message: "Không tìm thấy lịch chụp thuộc tài khoản của bạn." });
+      }
+      return res.status(409).json({ success: false, message: "Lịch này đã được xử lý hoặc không còn chờ xác nhận." });
+    }
+    res.json({ success: true, message: "Đã xác nhận buổi chụp." });
+  } catch (error) {
+    console.error("Lỗi xác nhận lịch chụp:", error);
+    res.status(500).json({ success: false, message: "Không thể xác nhận lịch chụp." });
+  }
+};

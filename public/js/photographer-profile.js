@@ -184,6 +184,7 @@ function renderTags(value) {
 function setupOwnerEditor(photographer) {
   if (!ownProfile) return;
   document.getElementById('editProfileButton').hidden = false;
+  document.getElementById('photographerScheduleLink').hidden = false;
   document.getElementById('galleryActions').hidden = false;
   document.getElementById('galleryGuidance').hidden = false;
   document.getElementById('changeCoverButton').hidden = false;

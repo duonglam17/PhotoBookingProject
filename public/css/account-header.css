@@ -52,6 +52,22 @@
   color: #e95700;
 }
 
+.menu-pending-badge,
+.photographer-pending-badge {
+  display: inline-grid;
+  min-width: 17px;
+  height: 17px;
+  place-items: center;
+  margin-left: 5px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: #e95700;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 @media (max-width: 600px) {
   .signed-in-name {
     max-width: 132px;

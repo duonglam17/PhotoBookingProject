@@ -81,6 +81,7 @@ button { font: inherit; }
   white-space: nowrap;
 }
 .main-nav a:hover, .main-nav a.active { color: var(--profile-orange); }
+.main-nav a .photographer-pending-badge { color: #fff; }
 .account-link { color: var(--profile-orange); font-weight: 600; }
 
 .profile-page { width: min(1050px, calc(100% - 48px)); flex: 1; margin: 22px auto 48px; }

@@ -30,6 +30,34 @@
     profileItem.textContent = 'Hồ sơ của tôi';
     profileItem.setAttribute('role', 'menuitem');
 
+    if (role === 'photographer') {
+      const scheduleItem = document.createElement('a');
+      scheduleItem.href = '/pages/photographer-bookings.html';
+      scheduleItem.className = 'photographer-schedule-menu-item';
+      scheduleItem.setAttribute('role', 'menuitem');
+      scheduleItem.innerHTML = 'Lịch chụp <span class="menu-pending-badge" hidden></span>';
+      accountMenu.append(scheduleItem);
+
+      const updatePendingBadges = async () => {
+        try {
+          const response = await fetch('/api/bookings/photographer/notifications', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
+          });
+          if (!response.ok) return;
+          const result = await response.json();
+          document.querySelectorAll('.menu-pending-badge, .photographer-pending-badge').forEach((badge) => {
+            const count = Number(result.pendingCount) || 0;
+            badge.textContent = String(count);
+            badge.hidden = count === 0;
+            badge.setAttribute('aria-label', `${count} yêu cầu đặt lịch mới`);
+          });
+        } catch {
+        }
+      };
+      updatePendingBadges();
+      window.setInterval(updatePendingBadges, 30000);
+    }
+
     const logoutButton = document.createElement('button');
     logoutButton.type = 'button';
     logoutButton.textContent = 'Đăng xuất';
