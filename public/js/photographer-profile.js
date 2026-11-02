@@ -461,8 +461,11 @@ function renderPortfolio() {
   const portfolioEmpty = document.getElementById('portfolioEmpty');
   const validPhotos = profileState.photos.map(safeImageUrl).filter(Boolean);
   portfolioGrid.innerHTML = validPhotos.map((photoUrl, index) => `
-    <figure class="portfolio-item${profileState.sorting ? ' is-sorting' : ''}" draggable="${profileState.sorting && ownProfile}" data-photo-index="${index}">
+        <figure class="portfolio-item${profileState.sorting ? ' is-sorting' : ''}" draggable="${profileState.sorting && ownProfile}" data-photo-index="${index}" title="Nhấn để xem toàn bộ ảnh độ phân giải cao">
       <img class="portfolio-photo" src="${escapeHtml(photoUrl)}" alt="Ảnh ${index + 1} của ${escapeHtml(profileState.photographer.name || 'nhiếp ảnh gia')}" loading="lazy" />
+      <div class="portfolio-hover-overlay" aria-hidden="true">
+        <span class="hover-zoom-badge">⤢ Xem ảnh nét</span>
+      </div>
       ${ownProfile ? `<label class="photo-select"><input type="checkbox" value="${index}" aria-label="Chọn ảnh ${index + 1}" /><span></span></label>` : ''}
       ${profileState.sorting && ownProfile ? '<span class="drag-hint" aria-hidden="true">↕</span>' : ''}
     </figure>
@@ -698,8 +701,224 @@ function setupTabs() {
   });
 }
 
+
+/* ==========================================================================
+   PHOTO LIGHTBOX: XEM ẢNH FULL ĐỘ PHÂN GIẢI & CHẤT LƯỢNG CAO NHẤT
+   ========================================================================== */
+let currentLightboxIndex = 0;
+let isLightboxZoomed = false;
+let isLightboxInitialized = false;
+
+function initPhotoLightbox() {
+  if (isLightboxInitialized) return;
+  isLightboxInitialized = true;
+
+  const modal = document.getElementById('photoLightboxModal');
+  const mainImg = document.getElementById('lightboxMainImage');
+  const counterEl = document.getElementById('lightboxCounter');
+  const resBadge = document.getElementById('lightboxResBadge');
+  const zoomBtn = document.getElementById('lightboxZoomToggle');
+  const zoomLabel = document.getElementById('lightboxZoomLabel');
+  const origLink = document.getElementById('lightboxOpenOriginal');
+  const closeBtn = document.getElementById('lightboxCloseButton');
+  const prevBtn = document.getElementById('lightboxPrevButton');
+  const nextBtn = document.getElementById('lightboxNextButton');
+  const backdrop = document.getElementById('lightboxBackdrop');
+  const spinner = document.getElementById('lightboxSpinner');
+  const strip = document.getElementById('lightboxThumbnailsStrip');
+  const viewport = document.getElementById('lightboxViewport');
+
+  if (!modal || !mainImg) return;
+
+  function getValidPhotos() {
+    return (profileState.photos || []).map(safeImageUrl).filter(Boolean);
+  }
+
+  function setZoom(zoomed) {
+    isLightboxZoomed = Boolean(zoomed);
+    if (!viewport) return;
+    viewport.classList.toggle('is-zoomed', isLightboxZoomed);
+    if (zoomLabel) {
+      zoomLabel.textContent = isLightboxZoomed ? 'Vừa màn hình' : 'Phóng to 100%';
+    }
+    if (!isLightboxZoomed) {
+      viewport.scrollLeft = 0;
+      viewport.scrollTop = 0;
+    }
+  }
+
+  function toggleZoom() {
+    setZoom(!isLightboxZoomed);
+  }
+
+  function renderThumbnails(photos, activeIndex) {
+    if (!strip) return;
+    strip.innerHTML = photos.map((url, i) => `
+      <img class="lightbox-thumb ${i === activeIndex ? 'is-active' : ''}" src="${escapeHtml(url)}" alt="Thumb ${i + 1}" data-thumb-index="${i}" loading="lazy" />
+    `).join('');
+
+    const activeThumb = strip.querySelector('.lightbox-thumb.is-active');
+    if (activeThumb) {
+      activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
+
+  function updateLightboxPhoto(index) {
+    const photos = getValidPhotos();
+    if (!photos.length) return;
+
+    if (index < 0) index = photos.length - 1;
+    if (index >= photos.length) index = 0;
+    currentLightboxIndex = index;
+
+    setZoom(false);
+
+    const photoUrl = photos[index];
+    if (counterEl) counterEl.textContent = `Ảnh ${index + 1} / ${photos.length}`;
+    if (resBadge) resBadge.textContent = 'Đang tải độ phân giải gốc...';
+    if (origLink) origLink.href = photoUrl;
+
+    if (spinner) spinner.hidden = false;
+    mainImg.style.opacity = '0.35';
+
+    // Tải ảnh để phát hiện độ phân giải thực tế (Natural Resolution)
+    const probe = new Image();
+    probe.src = photoUrl;
+    probe.onload = () => {
+      mainImg.src = photoUrl;
+      mainImg.style.opacity = '1';
+      if (spinner) spinner.hidden = true;
+      const w = probe.naturalWidth;
+      const h = probe.naturalHeight;
+      let tag = 'Chuẩn HD';
+      if (w >= 3840 || h >= 3840) tag = '4K Ultra HD';
+      else if (w >= 1920 || h >= 1920) tag = 'Full HD';
+      else if (w >= 1280 || h >= 1280) tag = 'HD';
+      if (resBadge) resBadge.textContent = `${w} × ${h} px • ${tag}`;
+    };
+    probe.onerror = () => {
+      mainImg.src = photoUrl;
+      mainImg.style.opacity = '1';
+      if (spinner) spinner.hidden = true;
+      if (resBadge) resBadge.textContent = 'Ảnh chất lượng cao';
+    };
+
+    renderThumbnails(photos, index);
+  }
+
+  function openLightbox(index) {
+    const photos = getValidPhotos();
+    if (!photos.length) return;
+
+    modal.hidden = false;
+    void modal.offsetWidth; // Force reflow
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+
+    updateLightboxPhoto(index);
+    document.addEventListener('keydown', handleKeydown);
+  }
+
+  function closeLightbox() {
+    modal.classList.remove('is-open');
+    setZoom(false);
+    setTimeout(() => {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      if (mainImg) mainImg.src = '';
+    }, 220);
+    document.removeEventListener('keydown', handleKeydown);
+  }
+
+  function handleKeydown(e) {
+    if (modal.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeLightbox();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      updateLightboxPhoto(currentLightboxIndex + 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      updateLightboxPhoto(currentLightboxIndex - 1);
+    } else if (e.key === ' ' || e.key === 'Spacebar' || e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      toggleZoom();
+    }
+  }
+
+  // Gắn sự kiện nút điều khiển
+  if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+  if (backdrop) backdrop.addEventListener('click', closeLightbox);
+  if (prevBtn) prevBtn.addEventListener('click', () => updateLightboxPhoto(currentLightboxIndex - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => updateLightboxPhoto(currentLightboxIndex + 1));
+  if (zoomBtn) zoomBtn.addEventListener('click', toggleZoom);
+  if (mainImg) mainImg.addEventListener('click', toggleZoom);
+
+  // Nhấn vào thumbnail dải dưới
+  if (strip) {
+    strip.addEventListener('click', (e) => {
+      const thumb = e.target.closest('.lightbox-thumb');
+      if (!thumb) return;
+      const idx = parseInt(thumb.dataset.thumbIndex, 10);
+      if (Number.isInteger(idx)) updateLightboxPhoto(idx);
+    });
+  }
+
+  // Pan ảnh khi kéo thả ở chế độ Zoom
+  if (viewport) {
+    let isPanning = false;
+    let startX = 0, startY = 0;
+    let scrollLeft = 0, scrollTop = 0;
+
+    viewport.addEventListener('mousedown', (e) => {
+      if (!isLightboxZoomed) return;
+      isPanning = true;
+      viewport.classList.add('is-panning');
+      startX = e.pageX - viewport.offsetLeft;
+      startY = e.pageY - viewport.offsetTop;
+      scrollLeft = viewport.scrollLeft;
+      scrollTop = viewport.scrollTop;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isPanning || !isLightboxZoomed) return;
+      e.preventDefault();
+      const x = e.pageX - viewport.offsetLeft;
+      const y = e.pageY - viewport.offsetTop;
+      viewport.scrollLeft = scrollLeft - (x - startX) * 1.5;
+      viewport.scrollTop = scrollTop - (y - startY) * 1.5;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isPanning) {
+        isPanning = false;
+        viewport.classList.remove('is-panning');
+      }
+    });
+  }
+
+  // Lắng nghe click từ Portfolio Grid
+  const portfolioGrid = document.getElementById('portfolioGrid');
+  if (portfolioGrid) {
+    portfolioGrid.addEventListener('click', (event) => {
+      if (profileState.sorting) return;
+      if (event.target.closest('.photo-select')) return;
+      if (portfolioGrid.classList.contains('selecting')) return;
+
+      const item = event.target.closest('.portfolio-item');
+      if (!item) return;
+      const index = parseInt(item.dataset.photoIndex, 10);
+      if (Number.isInteger(index) && index >= 0) {
+        openLightbox(index);
+      }
+    });
+  }
+}
+
 async function loadProfile() {
   setupTabs();
+  initPhotoLightbox();
   const photographerId = parameters.get('id');
   if (!ownProfile && (!photographerId || !/^\d+$/.test(photographerId))) {
     showProfileError('Hãy mở hồ sơ từ danh sách nhiếp ảnh gia để xem thông tin chi tiết.');

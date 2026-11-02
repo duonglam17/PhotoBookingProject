@@ -294,3 +294,118 @@ exports.confirmPhotographerBooking = async (req, res) => {
     res.status(500).json({ success: false, message: "Không thể xác nhận lịch chụp." });
   }
 };
+
+
+// Khách hàng hủy đơn đặt lịch chụp (kèm lý do hủy)
+exports.cancelBooking = async (req, res) => {
+  try {
+    // 1. Xác thực vai trò: Chỉ tài khoản khách hàng mới có quyền hủy đơn đặt lịch này
+    if (req.auth?.role !== "client") {
+      return res.status(403).json({
+        success: false,
+        message: "Chỉ tài khoản khách hàng mới có quyền hủy đơn đặt lịch này.",
+      });
+    }
+
+    // 2. Validate req.params.bookingId: số nguyên dương hợp lệ
+    const bookingIdParam = req.params.bookingId;
+    if (!bookingIdParam || !/^\d+$/.test(bookingIdParam) || Number(bookingIdParam) <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Mã đơn đặt lịch không hợp lệ.",
+      });
+    }
+    const bookingId = Number(bookingIdParam);
+
+    // 3. Validate reason từ req.body: chuỗi có độ dài sau khi trim từ 5 đến 500 ký tự
+    const { reason } = req.body || {};
+    const trimmedReason = typeof reason === "string" ? reason.trim() : "";
+    if (trimmedReason.length < 5 || trimmedReason.length > 500) {
+      return res.status(400).json({
+        success: false,
+        message: "Lý do hủy là bắt buộc và phải có từ 5 đến 500 ký tự.",
+      });
+    }
+
+    // 4. Kiểm tra quyền sở hữu và sự tồn tại
+    const [rows] = await db.execute(
+      "SELECT booking_id, booking_code, user_id, status, notes FROM bookings WHERE booking_id = ?",
+      [bookingId],
+    );
+
+    if (!rows.length || rows[0].user_id !== Number(req.auth.userId)) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy đơn đặt lịch hoặc bạn không có quyền thao tác trên đơn này.",
+      });
+    }
+
+    const booking = rows[0];
+
+    // 5. Kiểm tra trạng thái đơn: chỉ cho phép hủy khi 'pending' hoặc 'confirmed'
+    if (!["pending", "confirmed"].includes(booking.status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Không thể hủy đơn đặt lịch ở trạng thái '${booking.status}'. Chỉ được hủy khi đơn ở trạng thái 'pending' hoặc 'confirmed'.`,
+      });
+    }
+
+    // 6. Cơ chế zero-migration với trường notes: bảo lưu 100% thuộc tính hiện có
+    let notesObj = {};
+    if (typeof booking.notes === "object" && booking.notes !== null) {
+      notesObj = { ...booking.notes };
+    } else if (typeof booking.notes === "string" && booking.notes.trim() !== "") {
+      try {
+        const parsed = JSON.parse(booking.notes);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          notesObj = parsed;
+        } else {
+          notesObj = { note: booking.notes };
+        }
+      } catch {
+        notesObj = { note: booking.notes };
+      }
+    }
+
+    const cancelledAt = new Date().toISOString();
+    const updatedNotesObj = {
+      ...notesObj,
+      cancellationReason: trimmedReason,
+      cancelledAt,
+      cancelledBy: "client",
+    };
+    const updatedNotesJson = JSON.stringify(updatedNotesObj);
+
+    // 7. Thực hiện cập nhật Database
+    const [updateResult] = await db.execute(
+      "UPDATE bookings SET status = 'cancelled', notes = ? WHERE booking_id = ? AND user_id = ? AND status IN ('pending', 'confirmed')",
+      [updatedNotesJson, bookingId, Number(req.auth.userId)],
+    );
+
+    if (updateResult.affectedRows === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Không thể hủy đơn đặt lịch do trạng thái đơn đã thay đổi.",
+      });
+    }
+
+    // 8. Phản hồi HTTP 200
+    return res.status(200).json({
+      success: true,
+      data: {
+        bookingId: booking.booking_id,
+        bookingCode: booking.booking_code,
+        status: "cancelled",
+        cancellationReason: trimmedReason,
+        cancelledAt: cancelledAt,
+      },
+      message: "Đã hủy đơn đặt lịch thành công.",
+    });
+  } catch (error) {
+    console.error("Lỗi khi hủy đơn đặt lịch:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi hệ thống, không thể hủy đơn đặt lịch lúc này.",
+    });
+  }
+};

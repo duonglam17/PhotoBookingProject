@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/design-system.css" />
     <link rel="stylesheet" href="/css/my-bookings.css" />
     <link rel="stylesheet" href="/css/account-header.css" />
   </head>
@@ -95,6 +96,68 @@
       <!-- KHUNG DANH SÁCH CHI TIẾT (LIST VIEW) -->
       <section id="bookingList" class="booking-list" aria-live="polite" hidden></section>
     </main>
+
+    <!-- MODAL XÁC NHẬN HỦY ĐƠN ĐẶT LỊCH -->
+    <div id="cancelBookingModal" class="cancel-modal-backdrop" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle">
+      <div class="cancel-modal-dialog">
+        <div class="cancel-modal-header">
+          <div class="cancel-modal-title-wrap">
+            <span class="cancel-modal-icon" aria-hidden="true">⚠️</span>
+            <h2 id="cancelModalTitle" class="cancel-modal-title">Xác nhận hủy đơn đặt lịch</h2>
+          </div>
+          <button id="cancelModalCloseBtn" class="cancel-modal-close" type="button" aria-label="Đóng modal">&times;</button>
+        </div>
+
+        <div class="cancel-modal-body">
+          <p class="cancel-modal-desc">
+            Bạn có chắc chắn muốn hủy đơn đặt lịch này không? Hành động này sẽ thông báo tới phía phụ trách và chuyển trạng thái đơn sang Đã hủy.
+          </p>
+
+          <div class="cancel-booking-summary">
+            <div class="summary-item">
+              <span class="summary-label">Mã đơn:</span>
+              <strong id="cancelModalBookingCode" class="summary-value code-value">—</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Gói chụp:</span>
+              <strong id="cancelModalPackageName" class="summary-value">—</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Ngày giờ chụp:</span>
+              <strong id="cancelModalBookingDate" class="summary-value">—</strong>
+            </div>
+          </div>
+
+          <div class="cancel-reason-form-group">
+            <label for="cancelBookingReasonInput" class="cancel-reason-label">
+              Lý do hủy đơn <span class="required-star" aria-hidden="true">*</span>
+            </label>
+            <textarea
+              id="cancelBookingReasonInput"
+              class="cancel-reason-textarea"
+              rows="4"
+              maxlength="500"
+              placeholder="Vui lòng nhập lý do bạn muốn hủy lịch chụp (tối thiểu 5 ký tự, ví dụ: Bận việc gia đình đột xuất, thay đổi lịch trình...)"
+            ></textarea>
+            <div class="cancel-reason-footer">
+              <div id="cancelReasonError" class="cancel-reason-error" hidden role="alert">Lý do hủy phải có từ 5 đến 500 ký tự.</div>
+              <div id="cancelReasonCharCount" class="cancel-reason-char-count">0/500 ký tự</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cancel-modal-actions">
+          <button id="cancelModalCancelBtn" class="btn-cancel-modal-secondary" type="button">Đóng</button>
+          <button id="cancelModalConfirmBtn" class="btn-cancel-modal-danger" type="button" disabled>
+            <span class="btn-text">Xác nhận hủy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST THÔNG BÁO -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 
     <footer class="bookings-footer"><a href="/">Pdun.Foto</a><span>Hỗ trợ đặt lịch chụp hình</span></footer>
     <script src="/js/my-bookings.js"></script>

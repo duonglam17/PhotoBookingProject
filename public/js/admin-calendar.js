@@ -28,6 +28,22 @@
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(Number(value) || 0);
   }
 
+  const addOnLabels = {
+    'makeup-hair': 'Make-up + Làm tóc',
+    'studio-rental': 'Thuê studio',
+  };
+
+  function parseNotes(value) {
+    if (!value) return {};
+    if (typeof value === 'object') return value;
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed : { note: String(value) };
+    } catch {
+      return { note: String(value) };
+    }
+  }
+
   function getBookingDateKey(dateVal) {
     if (!dateVal) return '';
     const d = new Date(dateVal);
@@ -162,7 +178,15 @@
                 </div>
 
                 <div class="popover-body">
-                  ${dayBookings.map((b) => `
+                  ${dayBookings.map((b) => {
+                    const details = parseNotes(b.notes);
+                    const shootTitle = details.title || b.title || '';
+                    const noteContent = [details.description, details.note].filter(Boolean).join(' · ');
+                    const addOnsList = Array.isArray(details.addOns)
+                      ? details.addOns.map((k) => addOnLabels[k] || k).filter(Boolean)
+                      : [];
+
+                    return `
                     <div class="popover-booking-item status-${b.status}">
                       <div class="booking-item-header">
                         <span class="item-booking-code">🔖 ${escapeHtml(b.bookingCode)}</span>
@@ -195,15 +219,33 @@
                           <span class="detail-label">📍 Địa điểm:</span>
                           <span class="detail-value">${escapeHtml(b.location || 'Chưa cập nhật')}</span>
                         </div>
-                        ${b.notes ? `
+                        ${shootTitle ? `
+                          <div class="item-detail-row">
+                            <span class="detail-label">🎯 Tiêu đề:</span>
+                            <span class="detail-value"><strong>${escapeHtml(shootTitle)}</strong></span>
+                          </div>
+                        ` : ''}
+                        ${noteContent ? `
+                          <div class="item-detail-row full-width">
+                            <span class="detail-label">📝 Ghi chú:</span>
+                            <span class="detail-value notes-text">${escapeHtml(noteContent)}</span>
+                          </div>
+                        ` : (!shootTitle && b.notes ? `
                           <div class="item-detail-row full-width">
                             <span class="detail-label">📝 Ghi chú:</span>
                             <span class="detail-value notes-text">${escapeHtml(b.notes)}</span>
                           </div>
+                        ` : '')}
+                        ${addOnsList.length ? `
+                          <div class="item-detail-row full-width">
+                            <span class="detail-label">✨ Dịch vụ thêm:</span>
+                            <span class="detail-value">${escapeHtml(addOnsList.join(', '))}</span>
+                          </div>
                         ` : ''}
                       </div>
                     </div>
-                  `).join('')}
+                  `;
+                  }).join('')}
                 </div>
               </div>
             ` : ''}

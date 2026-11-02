@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "feature": "client-cancel-booking",
+  "version": "1.0.0",
+  "author": "tech-lead-architect",
+  "createdAt": "2026-11-02",
+  "summary": "Đặc tả kỹ thuật tính năng cho phép khách hàng chủ động hủy đơn đặt lịch chụp (kèm lý do hủy) khi đơn đang ở trạng thái Chờ xác nhận (pending) hoặc Đã xác nhận (confirmed).",
+  "databaseRequirements": {
+    "tablesModified": ["bookings"],
+    "newColumns": [],
+    "notes": "Không yêu cầu thêm cột mới vào cơ sở dữ liệu để bảo đảm tính tương thích và zero-migration. Cập nhật cột `status = 'cancelled'`. Thông tin lý do hủy được lưu trữ an toàn bên trong trường `notes` dưới dạng JSON object: bảo lưu toàn bộ các trường hiện hữu (title, description, minBudget, maxBudget, addOns, note, referenceImage) và bổ sung 3 trường: `cancellationReason` (string), `cancelledAt` (ISO 8601 UTC timestamp), và `cancelledBy` ('client')."
+  },
+  "endpoints": [
+    {
+      "method": "PATCH",
+      "path": "/api/bookings/:bookingId/cancel",
+      "description": "Khách hàng hủy đơn đặt lịch chụp của chính mình kèm lý do hủy",
+      "auth": {
+        "required": true,
+        "allowedRoles": ["client"]
+      },
+      "params": {
+        "bookingId": {
+          "type": "integer",
+          "description": "ID định danh của đơn đặt lịch trong cơ sở dữ liệu",
+          "example": 105
+        }
+      },
+      "request": {
+        "contentType": "application/json",
+        "body": {
+          "type": "object",
+          "required": ["reason"],
+          "properties": {
+            "reason": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 500,
+              "description": "Lý do khách hàng quyết định hủy buổi chụp",
+              "example": "Bận việc gia đình đột xuất không thể sắp xếp tham gia buổi chụp"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Hủy đơn đặt lịch thành công",
+          "envelope": {
+            "success": true,
+            "data": {
+              "bookingId": 105,
+              "bookingCode": "BK-8F32C0D1",
+              "status": "cancelled",
+              "cancellationReason": "Bận việc gia đình đột xuất không thể sắp xếp tham gia buổi chụp",
+              "cancelledAt": "2026-11-02T08:50:00.000Z"
+            },
+            "message": "Đã hủy đơn đặt lịch thành công."
+          }
+        },
+        "400": {
+          "description": "Dữ liệu đầu vào hoặc trạng thái đơn đặt lịch không hợp lệ",
+          "envelope": {
+            "success": false,
+            "message": "Lý do hủy là bắt buộc và phải có từ 5 đến 500 ký tự. (hoặc: Không thể hủy đơn đặt lịch ở trạng thái 'in_progress'. Chỉ được hủy khi đơn ở trạng thái 'pending' hoặc 'confirmed'.)"
+          }
+        },
+        "401": {
+          "description": "Chưa đăng nhập hoặc phiên đăng nhập đã hết hạn",
+          "envelope": {
+            "success": false,
+            "message": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+          }
+        },
+        "403": {
+          "description": "Không đủ quyền hạn thực hiện thao tác",
+          "envelope": {
+            "success": false,
+            "message": "Chỉ tài khoản khách hàng mới có quyền hủy đơn đặt lịch này."
+          }
+        },
+        "404": {
+          "description": "Không tìm thấy đơn đặt lịch hoặc đơn không thuộc về người dùng hiện tại",
+          "envelope": {
+            "success": false,
+            "message": "Không tìm thấy đơn đặt lịch hoặc bạn không có quyền thao tác trên đơn này."
+          }
+        },
+        "500": {
+          "description": "Lỗi máy chủ nội bộ",
+          "envelope": {
+            "success": false,
+            "message": "Lỗi hệ thống, không thể hủy đơn đặt lịch lúc này."
+          }
+        }
+      }
+    }
+  ],
+  "frontendRequirements": {
+    "pageOrComponent": "public/pages/my-bookings.html & public/js/my-bookings.js",
+    "requiredState": [
+      "isCancelling",
+      "activeCancelBookingId",
+      "cancelReasonInput",
+      "cancelReasonError",
+      "isCancelModalOpen"
+    ],
+    "uxBehaviors": [
+      "Hiển thị nút 'Hủy lịch' (.btn-cancel-booking) trên mỗi thẻ buổi chụp (Booking Card) và trong Popover chi tiết ngày ở chế độ lịch tháng khi đơn ở trạng thái 'pending' hoặc 'confirmed' trong góc nhìn khách hàng.",
+      "Ẩn hoặc vô hiệu hóa nút 'Hủy lịch' khi đơn đã ở trạng thái 'cancelled', 'completed' hoặc 'in_progress'.",
+      "Khi đơn ở trạng thái 'cancelled', nếu có dữ liệu cancellationReason trong notes thì hiển thị dòng thông tin: 'Lý do hủy: <cancellationReason>' trên thẻ đơn.",
+      "Khi nhấn nút 'Hủy lịch', mở modal xác nhận hủy (#cancelBookingModal) kèm thông tin mã đơn (bookingCode), ngày chụp, tên gói chụp để khách đối soát.",
+      "Modal có trường textarea nhập lý do với placeholder hướng dẫn, bộ đếm ký tự thời gian thực (ví dụ: '0/500 ký tự', giới hạn maxLength 500).",
+      "Kiểm tra tính hợp lệ trực tiếp (Real-time Validation): nếu lý do bỏ trống hoặc dưới 5 ký tự sau khi trim, hiển thị thông báo lỗi màu đỏ và vô hiệu hóa nút 'Xác nhận hủy'.",
+      "Khi nhấn 'Xác nhận hủy': kích hoạt trạng thái isCancelling = true, nút chuyển sang dạng loading/spinner, khóa các nút tương tác và ngăn đóng modal.",
+      "Xử lý khi thành công (200): đóng modal xác nhận, hiển thị Toast thông báo thành công 'Đã hủy đơn đặt lịch thành công.', cập nhật trạng thái thẻ đơn sang 'Đã hủy' (status-cancelled), hiển thị lý do hủy và vô hiệu hóa/xóa nút hủy mà không bắt buộc tải lại toàn bộ trang (hoặc tự động gọi lại loadBookings).",
+      "Xử lý khi thất bại (400, 403, 404, 500): mở khóa nút tương tác, hiển thị thông báo lỗi rõ ràng cho người dùng biết lý do thất bại."
+    ]
+  },
+  "acceptanceCriteria": [
+    "AC1: Khách hàng gửi PATCH /api/bookings/:bookingId/cancel cho đơn ở trạng thái 'pending' thuộc quyền sở hữu của mình kèm lý do hợp lệ (>= 5 ký tự) -> Nhận HTTP 200, status chuyển thành 'cancelled', notes được cập nhật bổ sung cancellationReason, cancelledAt, cancelledBy.",
+    "AC2: Khách hàng gửi PATCH /api/bookings/:bookingId/cancel cho đơn ở trạng thái 'confirmed' thuộc quyền sở hữu của mình kèm lý do hợp lệ -> Nhận HTTP 200, status chuyển thành 'cancelled'.",
+    "AC3: Cố gắng hủy đơn đặt lịch đang ở trạng thái 'in_progress', 'completed' hoặc 'cancelled' -> Nhận HTTP 400 Bad Request kèm thông báo lỗi rõ ràng nêu rõ trạng thái không cho phép hủy.",
+    "AC4: Khách hàng cố gắng hủy đơn đặt lịch thuộc về người dùng khác hoặc bookingId không tồn tại -> Nhận HTTP 404 Not Found kèm thông báo không tìm thấy đơn hoặc không có quyền thao tác.",
+    "AC5: Gửi request thiếu trường 'reason', hoặc 'reason' dưới 5 ký tự (sau khi trim), hoặc vượt quá 500 ký tự -> Nhận HTTP 400 Bad Request kèm message lỗi mô tả cụ thể.",
+    "AC6: Tham số :bookingId không phải là số nguyên dương hợp lệ -> Nhận HTTP 400 Bad Request kèm thông báo 'Mã đơn đặt lịch không hợp lệ.'",
+    "AC7: Không đính kèm Bearer token hợp lệ trong header Authorization -> Nhận HTTP 401 Unauthorized.",
+    "AC8: Tài khoản đăng nhập không phải vai trò 'client' (ví dụ tài khoản 'photographer') thực hiện gọi API hủy đơn -> Nhận HTTP 403 Forbidden.",
+    "AC9: Toàn bộ dữ liệu trước đó được lưu trong cột 'notes' (như title, description, minBudget, maxBudget, addOns, note, referenceImage) phải được giữ nguyên vẹn 100%, không bị mất mát hay ghi đè sau khi cập nhật lý do hủy.",
+    "AC10: Giao diện người dùng tại public/pages/my-bookings.html và public/js/my-bookings.js hiển thị nút hủy đúng ngữ cảnh, modal xác nhận hoạt động mượt mà, validate lý do nhập liệu chính xác và phản hồi trạng thái tức thời."
+  ]
+}

@@ -1,3 +1,5 @@
+@import url('/css/design-system.css');
+
 .account-menu-wrapper {
   position: relative;
   display: inline-flex;
@@ -11,35 +13,42 @@
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.1px;
 }
 
 .account-menu {
   position: absolute;
   z-index: 100;
-  top: calc(100% + 4px);
+  top: calc(100% + 8px);
   right: 0;
   display: grid;
-  min-width: 160px;
-  padding: 6px;
-  border: 1px solid #e1e8ef;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 10px 25px rgba(19, 36, 59, 0.14);
+  min-width: 180px;
+  padding: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.03);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(6px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  transform: translateY(8px) scale(0.97);
+  transform-origin: top right;
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out),
+              visibility var(--duration-fast) var(--ease-out);
 }
 
 /* Khoảng đệm vô hình để khi di chuột từ nút xuống menu không bị ngắt hover */
 .account-menu::before {
   content: "";
   position: absolute;
-  top: -10px;
+  top: -12px;
   left: 0;
   right: 0;
-  height: 10px;
+  height: 12px;
 }
 
 /* CHỈ KHI HOVER vào tên tài khoản hoặc menu thì mới hiển thị */
@@ -49,25 +58,29 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .account-menu a,
 .account-menu button {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: #13243b;
+  color: var(--neutral-800);
   font: inherit;
   font-size: 13px;
   font-weight: 500;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
 }
 
 .account-menu a:hover,
@@ -75,24 +88,41 @@
 .account-menu a:focus-visible,
 .account-menu button:focus-visible {
   outline: none;
-  background: #fff5ee;
-  color: #e95700;
+  background: var(--brand-subtle);
+  color: var(--brand-600);
+  transform: translateX(2px);
+}
+
+.account-menu button#logoutBtn,
+.account-menu button[data-action="logout"] {
+  margin-top: 4px;
+  border-top: 1px solid var(--neutral-100);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  color: #dc2626;
+}
+
+.account-menu button#logoutBtn:hover,
+.account-menu button[data-action="logout"]:hover {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .menu-pending-badge,
 .photographer-pending-badge {
   display: inline-grid;
-  min-width: 17px;
-  height: 17px;
+  min-width: 18px;
+  height: 18px;
   place-items: center;
-  margin-left: 5px;
-  padding: 0 4px;
-  border-radius: 9px;
-  background: #e95700;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--brand-500);
   color: #fff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   vertical-align: middle;
+  box-shadow: 0 2px 6px rgba(255, 101, 13, 0.35);
+  animation: pulseGlow 3s infinite;
 }
 
 @media (max-width: 600px) {
@@ -115,4 +145,3 @@ html[data-user-role="photographer"] #bookButton,
 html[data-user-role="photographer"] #secondaryBookButton {
   display: none !important;
 }
-

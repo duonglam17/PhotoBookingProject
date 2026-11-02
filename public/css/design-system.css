@@ -1,0 +1,317 @@
+/**
+ * Pdun.Foto Design System & Interaction Physics
+ * Core design tokens, motion tokens, micro-interactions and universal styling.
+ */
+
+:root {
+  /* ==========================================================================
+     COLOR TOKENS - Semantic & Global
+     ========================================================================== */
+  /* Brand / Primary Palette (Orange) */
+  --brand-50: #fff7ed;
+  --brand-100: #ffedd5;
+  --brand-200: #fed7aa;
+  --brand-300: #fdba74;
+  --brand-400: #fb923c;
+  --brand-500: #ff650d;  /* Brand Primary */
+  --brand-600: #e95700;  /* Brand Hover */
+  --brand-700: #c2410c;  /* Brand Active */
+  --brand-800: #9a3412;
+  --brand-900: #7c2d12;
+  --brand-subtle: #fff5ee;
+  --brand-gradient: linear-gradient(135deg, #ff650d 0%, #ff8c42 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #e95700 0%, #ff650d 100%);
+
+  /* Neutrals (Slate Tinted) */
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+  --neutral-950: #020617;
+
+  /* Surfaces & Backgrounds */
+  --color-surface-bg: #f8fafc;
+  --color-surface-card: #ffffff;
+  --color-surface-card-hover: #ffffff;
+  --color-surface-glass: rgba(255, 255, 255, 0.88);
+  --color-surface-glass-border: rgba(255, 255, 255, 0.6);
+
+  /* Semantic Feedback */
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-error: #ef4444;
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-info: #0284c7;
+  --color-info-bg: #f0f9ff;
+  --color-info-border: #bae6fd;
+
+  /* Focus Ring */
+  --color-focus: #ff650d;
+  --focus-ring: 0 0 0 3px rgba(255, 101, 13, 0.22);
+
+  /* ==========================================================================
+     SHADOW ELEVATIONS
+     ========================================================================== */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 2px 4px -1px rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 6px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -3px rgba(15, 23, 42, 0.05);
+  --shadow-xl: 0 20px 40px -6px rgba(15, 23, 42, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+  --shadow-brand: 0 8px 24px -2px rgba(255, 101, 13, 0.35);
+  --shadow-brand-hover: 0 12px 30px -2px rgba(255, 101, 13, 0.48);
+
+  /* ==========================================================================
+     BORDER RADIUS TOKENS
+     ========================================================================== */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     INTERACTION & MOTION TOKENS (Interaction Physics Standard)
+     ========================================================================== */
+  --duration-instant: 100ms;
+  --duration-fast: 180ms;    /* hover, press, focus, micro-interactions */
+  --duration-base: 280ms;    /* toasts, dropdowns, accordions, card lift */
+  --duration-slow: 400ms;    /* modals, drawers, page reveals */
+  --duration-long: 600ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);       /* Smooth deceleration */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);           /* Exits & dismissals */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);     /* Continuous loops */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);/* Bouncy accents */
+}
+
+/* ==========================================================================
+   SMOOTH SCROLLBAR & BASE POLISH
+   ========================================================================== */
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==========================================================================
+   UNIVERSAL INTERACTION PHYSICS
+   ========================================================================== */
+
+/* Universal Button Physics */
+button,
+.btn,
+.primary-button,
+.header-cta,
+.login-btn,
+.search-button,
+.card-book-btn,
+.filter-toggle-btn,
+.sort-btn,
+.new-booking {
+  font-family: inherit;
+  transition: transform var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              opacity var(--duration-fast) var(--ease-out);
+  will-change: transform;
+}
+
+/* Tactile press response for all buttons */
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.primary-button:active,
+.header-cta:active,
+.login-btn:active,
+.search-button:active,
+.card-book-btn:active,
+.filter-toggle-btn:active,
+.sort-btn:active,
+.new-booking:active {
+  transform: scale(0.97) !important;
+}
+
+/* Keyboard accessibility focus rings */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring) !important;
+}
+
+/* Form controls smooth transition */
+input, select, textarea {
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--brand-500) !important;
+  box-shadow: var(--focus-ring) !important;
+}
+
+/* ==========================================================================
+   ANIMATION KEYFRAMES
+   ========================================================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 101, 13, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 101, 13, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes floatSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@keyframes spinLoader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   COMMON GLASS & ELEVATION UTILITIES
+   ========================================================================== */
+.glass-panel {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.card-elevation-hover {
+  transition: transform var(--duration-base) var(--ease-out),
+              box-shadow var(--duration-base) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+}
+.card-elevation-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: PREFERS-REDUCED-MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

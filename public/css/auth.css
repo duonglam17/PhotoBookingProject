@@ -1,7 +1,158 @@
+@import url('/css/design-system.css');
+
+/* ==========================================================================
+   GLOBAL AUTH & CARD ELEVATION
+   ========================================================================== */
+body {
+  background: radial-gradient(ellipse at 15% 15%, rgba(255, 101, 13, 0.09) 0, transparent 40%),
+              radial-gradient(ellipse at 85% 85%, rgba(255, 237, 213, 0.5) 0, transparent 40%),
+              #faf7f2 !important;
+  color: var(--neutral-900);
+}
+
+.auth-card {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 20px 45px -8px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+  padding: 42px 34px !important;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.auth-card.active {
+  animation: authCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.logo-icon {
+  width: 52px !important;
+  height: 52px !important;
+  border: 2.5px solid var(--brand-500) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 12px rgba(255, 101, 13, 0.2) !important;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.logo-icon:hover {
+  transform: rotate(-6deg) scale(1.08) !important;
+}
+
+.logo-icon::after {
+  width: 22px !important;
+  height: 22px !important;
+  border: 2.5px solid var(--brand-500) !important;
+}
+
+.logo-text {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.4px !important;
+}
+
+.header-title {
+  color: var(--brand-500) !important;
+  font-weight: 700 !important;
+  font-size: 19px !important;
+  letter-spacing: -0.2px !important;
+}
+
+/* Form Controls */
+.form-control {
+  border: 1.5px solid var(--neutral-200) !important;
+  background-color: var(--neutral-50) !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out) !important;
+}
+
+.form-control:focus {
+  border-color: var(--brand-500) !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(255, 101, 13, 0.18) !important;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  font-size: 14.5px !important;
+  transition: all var(--duration-fast) var(--ease-out) !important;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98) !important;
+}
+
+.btn-primary {
+  background: var(--brand-gradient) !important;
+  color: #fff !important;
+  box-shadow: var(--shadow-brand) !important;
+}
+
+.btn-primary:hover {
+  background: var(--brand-gradient-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-brand-hover) !important;
+}
+
+.btn-outline {
+  border: 1px solid var(--neutral-200) !important;
+  background: transparent !important;
+}
+
+.btn-outline:hover {
+  background-color: #f8fafc !important;
+  border-color: var(--neutral-300) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-google {
+  background-color: #fff !important;
+  border: 1px solid var(--neutral-200) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+.btn-google:hover {
+  background-color: #f8fafc !important;
+  border-color: var(--neutral-300) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Role Selection Cards */
+.role-card {
+  border-radius: 14px !important;
+  height: 190px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              box-shadow 0.25s ease !important;
+}
+
+.role-card:hover {
+  border-color: var(--brand-500) !important;
+  transform: translateY(-4px) !important;
+  box-shadow: 0 14px 30px rgba(255, 101, 13, 0.2) !important;
+}
+
+/* Customer Registration View */
 #view-customer-register {
-  width: 364px;
+  width: 380px;
   max-width: 100%;
-  padding: 26px 20px 20px;
+  padding: 30px 24px 24px !important;
 }
 
 #view-customer-register .customer-logo {
@@ -9,96 +160,102 @@
 }
 
 #view-customer-register .logo-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  margin-bottom: 5px;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  margin-bottom: 6px;
 }
 
 #view-customer-register .logo-icon::after {
-  width: 18px;
-  height: 18px;
+  width: 18px !important;
+  height: 18px !important;
 }
 
 #view-customer-register .logo-text {
-  font-size: 15px;
+  font-size: 17px !important;
 }
 
 #view-customer-register .header-title {
-  margin-bottom: 20px;
-  font-size: 12px;
+  margin-bottom: 20px !important;
+  font-size: 13.5px !important;
 }
 
 #view-customer-register .customer-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 10px;
+  gap: 0 12px;
 }
 
 #view-customer-register .form-group {
   min-width: 0;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 #view-customer-register .form-group label {
-  margin-bottom: 4px;
-  font-size: 8px;
+  margin-bottom: 5px;
+  font-size: 11px !important;
+  font-weight: 600;
 }
 
 #view-customer-register .form-control {
   min-width: 0;
-  height: 25px;
-  padding: 4px 8px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: #edf2f7;
-  font-size: 9px;
+  height: 32px !important;
+  padding: 6px 10px !important;
+  border: 1px solid var(--neutral-200) !important;
+  border-radius: 8px !important;
+  background: #f8fafc !important;
+  font-size: 11.5px !important;
 }
 
 #view-customer-register .form-control:focus {
-  border-color: var(--primary-orange);
-  background: #fff;
+  border-color: var(--brand-500) !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(255, 101, 13, 0.15) !important;
 }
 
 #view-customer-register input[type="date"] {
-  color: #89919c;
+  color: #64748b;
 }
 
 #view-customer-register .helper-text {
   min-height: 12px;
   margin-top: 4px;
-  font-size: 7px;
+  font-size: 9.5px !important;
   line-height: 1.35;
 }
 
 #view-customer-register .phone-control {
   display: flex;
-  height: 25px;
+  height: 32px !important;
   overflow: hidden;
   border-radius: 8px;
-  background: #edf2f7;
+  background: #f8fafc;
+  border: 1px solid var(--neutral-200);
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+#view-customer-register .phone-control:focus-within {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(255, 101, 13, 0.15);
+  background: #fff;
 }
 
 #view-customer-register .country-code {
-  width: 34px;
-  flex: 0 0 34px;
-  padding: 0 0 0 7px;
+  width: 38px;
+  flex: 0 0 38px;
+  padding: 0 0 0 8px;
   border: 0;
   background: transparent;
   color: #283345;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 #view-customer-register .phone-control .form-control {
-  height: 25px;
-  padding-left: 2px;
-  border: 0;
-  background: transparent;
-}
-
-#view-customer-register .phone-control .form-control::placeholder {
-  color: #929ba7;
-  opacity: 1;
+  height: 32px !important;
+  padding-left: 4px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 #view-customer-register .password-field {
@@ -106,93 +263,80 @@
 }
 
 #view-customer-register .password-field .form-control {
-  padding-right: 30px;
+  padding-right: 32px !important;
 }
 
 #view-customer-register .customer-password-toggle {
   position: absolute;
-  top: 18px;
-  right: 7px;
+  top: 22px;
+  right: 8px;
   display: grid;
-  width: 18px;
-  height: 20px;
+  width: 20px;
+  height: 22px;
   place-items: center;
   border: 0;
   background: transparent;
-  color: #394656;
+  color: #64748b;
   cursor: pointer;
 }
 
-#view-customer-register .customer-password-toggle svg {
-  width: 13px;
-  height: 13px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.7;
-}
-
 #view-customer-register .customer-consents {
-  margin-top: 1px;
+  margin-top: 4px;
 }
 
 #view-customer-register .checkbox-group {
   align-items: flex-start;
-  gap: 5px;
-  margin-bottom: 4px;
-  font-size: 8px;
-  line-height: 1.4;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11px !important;
+  line-height: 1.45;
 }
 
 #view-customer-register .checkbox-group input {
-  width: 10px;
-  height: 10px;
-  flex: 0 0 10px;
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
   margin: 1px 0 0;
-  accent-color: var(--primary-orange);
+  accent-color: var(--brand-500);
 }
 
 #view-customer-register .checkbox-group a {
-  color: var(--primary-orange);
+  color: var(--brand-500);
+  text-decoration: underline;
 }
 
 #view-customer-register .customer-status {
-  margin-top: 8px;
-  color: var(--error-red);
-  font-size: 10px;
-}
-
-#view-customer-register .customer-status:empty {
-  display: none;
+  margin-top: 10px;
+  color: var(--color-error);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 #view-customer-register .customer-actions {
-  gap: 10px;
-  margin-top: 6px;
+  gap: 12px;
+  margin-top: 10px;
 }
 
 #view-customer-register .customer-actions .btn {
   min-width: 0;
-  height: 25px;
-  padding: 4px 8px;
+  height: 34px !important;
+  padding: 6px 12px !important;
   border-radius: 8px;
-  font-size: 9px;
+  font-size: 12px !important;
 }
 
 #view-customer-register .customer-actions .btn-primary {
-  background: linear-gradient(100deg, #ffa98b, #ffd18a);
+  background: var(--brand-gradient) !important;
 }
 
 #view-customer-register .customer-actions .btn-primary:hover {
-  background: linear-gradient(100deg, #ff9673, #ffc46f);
+  background: var(--brand-gradient-hover) !important;
 }
 
 @media (max-width: 420px) {
   #view-customer-register {
-    padding: 24px 16px 18px;
+    padding: 24px 16px 18px !important;
   }
-
   #view-customer-register .customer-grid {
     gap: 0 8px;
   }

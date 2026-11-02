@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/design-system.css" />
     <link rel="stylesheet" href="/css/photographer-profile.css" />
     <link rel="stylesheet" href="/css/account-header.css" />
   </head>
@@ -242,6 +243,55 @@
         </section>
       </div>
     </main>
+
+    <!-- LIGHTBOX: XEM ANH TOAN BO DO PHAN GIAI VA CHAT LUONG CAO NHAT -->
+    <div id="photoLightboxModal" class="photo-lightbox-modal" role="dialog" aria-modal="true" aria-label="Xem ảnh chất lượng cao" hidden>
+      <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+      <div class="lightbox-wrapper">
+        <!-- Floating Header Controls -->
+        <header class="lightbox-header">
+          <div class="lightbox-meta">
+            <span class="lightbox-badge-count" id="lightboxCounter">Ảnh 1 / 1</span>
+            <span class="lightbox-badge-res" id="lightboxResBadge">Đang tải...</span>
+          </div>
+          <div class="lightbox-toolbar">
+            <button type="button" id="lightboxZoomToggle" class="lightbox-tool-btn" title="Thu phóng kích thước thực (Phím Space)">
+              <span class="tool-icon">🔍</span>
+              <span id="lightboxZoomLabel">Phóng to 100%</span>
+            </button>
+            <a id="lightboxOpenOriginal" class="lightbox-tool-btn" href="#" target="_blank" rel="noopener noreferrer" title="Mở file ảnh gốc độ phân giải đầy đủ">
+              <span class="tool-icon">⤢</span>
+              <span>Ảnh gốc</span>
+            </a>
+            <button type="button" id="lightboxCloseButton" class="lightbox-tool-btn lightbox-close-btn" aria-label="Đóng (Phím Esc)" title="Đóng (Esc)">
+              <span>✕</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Main Display Canvas -->
+        <main class="lightbox-stage" id="lightboxStage">
+          <button type="button" id="lightboxPrevButton" class="lightbox-nav-btn prev-btn" aria-label="Ảnh trước (Mũi tên trái)" title="Ảnh trước (←)">
+            <span>‹</span>
+          </button>
+
+          <div class="lightbox-viewport" id="lightboxViewport">
+            <div id="lightboxSpinner" class="lightbox-spinner" hidden></div>
+            <img id="lightboxMainImage" class="lightbox-main-img" src="" alt="Ảnh độ phân giải cao" />
+          </div>
+
+          <button type="button" id="lightboxNextButton" class="lightbox-nav-btn next-btn" aria-label="Ảnh sau (Mũi tên phải)" title="Ảnh sau (→)">
+            <span>›</span>
+          </button>
+        </main>
+
+        <!-- Bottom Thumbnails Strip -->
+        <footer class="lightbox-footer">
+          <div class="lightbox-strip" id="lightboxThumbnailsStrip"></div>
+        </footer>
+      </div>
+    </div>
+
 
     <footer class="profile-footer">
       <a href="/">Pdun.Foto</a>

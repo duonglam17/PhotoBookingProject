@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "feature": "sample-feature-template",
+  "version": "1.0.0",
+  "author": "tech-lead-architect",
+  "createdAt": "2026-11-02",
+  "summary": "Mô tả ngắn gọn mục đích và phạm vi của tính năng",
+  "databaseRequirements": {
+    "tablesModified": [],
+    "newColumns": [],
+    "notes": "Không yêu cầu migration cơ sở dữ liệu nếu bảng đã có sẵn"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/example/endpoint",
+      "description": "Thực hiện hành động ví dụ",
+      "auth": {
+        "required": true,
+        "allowedRoles": ["client", "photographer", "admin"]
+      },
+      "request": {
+        "contentType": "application/json",
+        "body": {
+          "type": "object",
+          "required": ["title", "targetDate"],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 150,
+              "example": "Chụp ngoại cảnh hoàng hôn"
+            },
+            "targetDate": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-11-20"
+            },
+            "notes": {
+              "type": "string",
+              "example": "Yêu cầu tone màu ấm"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Thành công",
+          "envelope": {
+            "success": true,
+            "data": {
+              "id": 101,
+              "title": "Chụp ngoại cảnh hoàng hôn",
+              "status": "pending"
+            },
+            "message": "Đã tạo yêu cầu thành công."
+          }
+        },
+        "400": {
+          "description": "Dữ liệu đầu vào không hợp lệ",
+          "envelope": {
+            "success": false,
+            "message": "Tiêu đề không được để trống và phải có ít nhất 3 ký tự."
+          }
+        },
+        "401": {
+          "description": "Chưa đăng nhập",
+          "envelope": {
+            "success": false,
+            "message": "Vui lòng đăng nhập để thực hiện thao tác."
+          }
+        },
+        "403": {
+          "description": "Không đủ quyền hạn",
+          "envelope": {
+            "success": false,
+            "message": "Bạn không có quyền thực hiện tính năng này."
+          }
+        },
+        "500": {
+          "description": "Lỗi máy chủ",
+          "envelope": {
+            "success": false,
+            "message": "Không thể xử lý yêu cầu vào lúc này."
+          }
+        }
+      }
+    }
+  ],
+  "frontendRequirements": {
+    "pageOrComponent": "public/pages/example.html & public/js/example.js",
+    "requiredState": [
+      "isSubmitting",
+      "validationErrors",
+      "successMessage"
+    ],
+    "uxBehaviors": [
+      "Vô hiệu hóa nút Submit và hiển thị spinner khi đang gửi",
+      "Báo lỗi đỏ ngay dưới các input vi phạm",
+      "Hiển thị thông báo thành công và chuyển hướng hoặc xóa trắng form"
+    ]
+  },
+  "acceptanceCriteria": [
+    "AC1: Gửi request đúng chuẩn payload sẽ nhận response mã 200 kèm data và message",
+    "AC2: Bỏ trống trường bắt buộc sẽ nhận mã 400 kèm message lỗi chi tiết",
+    "AC3: Không có Authorization token sẽ bị chặn với mã 401",
+    "AC4: Giao diện người dùng hiển thị đúng thông báo lỗi và trạng thái loading"
+  ]
+}
+

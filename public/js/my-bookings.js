@@ -4,6 +4,19 @@
   const filterButtons = [...document.querySelectorAll('[data-status]')];
   const calendarContainer = document.getElementById('bookingCalendarContainer');
 
+  // DOM Elements - Cancel Modal
+  const cancelBookingModal = document.getElementById('cancelBookingModal');
+  const cancelModalCloseBtn = document.getElementById('cancelModalCloseBtn');
+  const cancelModalCancelBtn = document.getElementById('cancelModalCancelBtn');
+  const cancelModalConfirmBtn = document.getElementById('cancelModalConfirmBtn');
+  const cancelModalBookingCode = document.getElementById('cancelModalBookingCode');
+  const cancelModalPackageName = document.getElementById('cancelModalPackageName');
+  const cancelModalBookingDate = document.getElementById('cancelModalBookingDate');
+  const cancelBookingReasonInput = document.getElementById('cancelBookingReasonInput');
+  const cancelReasonError = document.getElementById('cancelReasonError');
+  const cancelReasonCharCount = document.getElementById('cancelReasonCharCount');
+  const toastEl = document.getElementById('toast');
+
   const statusLabels = {
     pending: 'Chờ xác nhận',
     confirmed: 'Đã xác nhận',
@@ -20,6 +33,11 @@
   let currentPerspective = 'photographer'; // 'photographer' hoặc 'client'
   let isPhotographerUser = false;
   let targetPhotographerId = null;
+
+  // States cho tính năng Hủy lịch chụp
+  let isCancelling = false;
+  let activeCancelBooking = null;
+  let isCancelModalOpen = false;
 
   const now = new Date();
   let currentYear = now.getFullYear();
@@ -71,6 +89,20 @@
   }
 
   /* ==========================================================================
+     TOAST THÔNG BÁO
+     ========================================================================== */
+  let toastTimer = null;
+  function showToast(message, type = 'success') {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.className = `toast show ${type === 'error' ? 'toast-error' : 'toast-success'}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.classList.remove('show');
+    }, 3200);
+  }
+
+  /* ==========================================================================
      VẼ DANH SÁCH CHI TIẾT (LIST VIEW)
      ========================================================================== */
   function renderBookingsList() {
@@ -92,6 +124,9 @@
       const description = [details.description, details.note].filter(Boolean).join('\n');
       const title = details.title || booking.packageName || 'Buổi chụp';
       const isPhotographerPerspective = isPhotographerUser && currentPerspective === 'photographer';
+      const isClientPerspective = !isPhotographerUser || currentPerspective === 'client';
+      const canCancel = isClientPerspective && (booking.status === 'pending' || booking.status === 'confirmed');
+      const cancellationReason = details.cancellationReason || booking.cancellationReason;
 
       return `
         <article class="booking-card">
@@ -111,12 +146,20 @@
               `}
             </div>
             ${description ? `<p class="booking-description">${escapeHtml(description)}</p>` : ''}
+            ${booking.status === 'cancelled' && cancellationReason ? `
+              <div class="cancellation-reason-box"><strong>Lý do hủy:</strong> ${escapeHtml(cancellationReason)}</div>
+            ` : ''}
           </div>
           <div class="booking-aside">
             <span class="booking-price">${formatCurrency(booking.packagePrice)}</span>
             <span class="status-chip ${escapeHtml(booking.status)}">${escapeHtml(statusLabels[booking.status] || booking.status)}</span>
             ${isPhotographerPerspective && booking.clientPhone ? `
               <a href="tel:${escapeHtml(booking.clientPhone)}" class="quick-call-link">📞 Gọi khách</a>
+            ` : ''}
+            ${canCancel ? `
+              <button type="button" class="btn-cancel-booking" data-booking-id="${escapeHtml(booking.bookingId)}">
+                ✕ Hủy lịch
+              </button>
             ` : ''}
           </div>
         </article>
@@ -252,7 +295,12 @@
                 <div class="popover-body">
                   ${dayBookings.map((b) => {
                     const parsed = parseNotes(b.notes);
-                    const desc = [b.title, b.description, parsed.description, parsed.note].filter(Boolean).join(' - ');
+                    const shootTitle = parsed.title || b.title || '';
+                    const desc = [parsed.description, parsed.note].filter(Boolean).join(' · ');
+                    const isClientPerspective = !isPhotographerUser || currentPerspective === 'client';
+                    const canCancel = isClientPerspective && (b.status === 'pending' || b.status === 'confirmed');
+                    const cancellationReason = parsed.cancellationReason || b.cancellationReason;
+
                     return `
                       <div class="popover-booking-item status-${b.status}">
                         <div class="booking-item-header">
@@ -299,10 +347,31 @@
                             <span class="detail-value">${escapeHtml(b.location || 'Chưa cập nhật')}</span>
                           </div>
 
+                          ${shootTitle ? `
+                            <div class="item-detail-row">
+                              <span class="detail-label">🎯 Tiêu đề:</span>
+                              <span class="detail-value"><strong>${escapeHtml(shootTitle)}</strong></span>
+                            </div>
+                          ` : ''}
+
                           ${desc ? `
                             <div class="item-detail-row full-width">
                               <span class="detail-label">📝 Chi tiết:</span>
                               <span class="detail-value notes-text">${escapeHtml(desc)}</span>
+                            </div>
+                          ` : ''}
+
+                          ${b.status === 'cancelled' && cancellationReason ? `
+                            <div class="item-detail-row full-width">
+                              <div class="cancellation-reason-box"><strong>Lý do hủy:</strong> ${escapeHtml(cancellationReason)}</div>
+                            </div>
+                          ` : ''}
+
+                          ${canCancel ? `
+                            <div class="item-detail-row full-width popover-action-row">
+                              <button type="button" class="btn-cancel-booking btn-cancel-booking-sm" data-booking-id="${escapeHtml(b.bookingId)}">
+                                ✕ Hủy lịch
+                              </button>
                             </div>
                           ` : ''}
                         </div>
@@ -334,6 +403,195 @@
     });
     if (calendarContainer) calendarContainer.hidden = !isCal;
     if (bookingList) bookingList.hidden = isCal;
+  }
+
+  /* ==========================================================================
+     LOGIC MODAL HỦY ĐƠN ĐẶT LỊCH (CLIENT CANCEL BOOKING)
+     ========================================================================== */
+  function openCancelModal(bookingId) {
+    if (isCancelling) return;
+    const targetBooking = bookings.find((b) => String(b.bookingId) === String(bookingId));
+    if (!targetBooking) return;
+
+    activeCancelBooking = targetBooking;
+    isCancelModalOpen = true;
+
+    if (cancelModalBookingCode) {
+      cancelModalBookingCode.textContent = targetBooking.bookingCode || '—';
+    }
+    if (cancelModalPackageName) {
+      cancelModalPackageName.textContent = targetBooking.packageName || 'Buổi chụp';
+    }
+    if (cancelModalBookingDate) {
+      const timeStr = String(targetBooking.startTime || '').slice(0, 5);
+      cancelModalBookingDate.textContent = `${formatDate(targetBooking.bookingDate)}${timeStr ? ` · ${timeStr}` : ''}`;
+    }
+
+    if (cancelBookingReasonInput) {
+      cancelBookingReasonInput.value = '';
+      cancelBookingReasonInput.disabled = false;
+    }
+
+    if (cancelReasonCharCount) {
+      cancelReasonCharCount.textContent = '0/500 ký tự';
+    }
+
+    if (cancelReasonError) {
+      cancelReasonError.hidden = true;
+      cancelReasonError.textContent = '';
+    }
+
+    if (cancelModalConfirmBtn) {
+      cancelModalConfirmBtn.disabled = true;
+      cancelModalConfirmBtn.innerHTML = '<span class="btn-text">Xác nhận hủy</span>';
+    }
+
+    if (cancelModalCloseBtn) cancelModalCloseBtn.disabled = false;
+    if (cancelModalCancelBtn) cancelModalCancelBtn.disabled = false;
+
+    if (cancelBookingModal) {
+      cancelBookingModal.hidden = false;
+      cancelBookingModal.setAttribute('aria-hidden', 'false');
+    }
+
+    setTimeout(() => {
+      if (cancelBookingReasonInput) cancelBookingReasonInput.focus();
+    }, 100);
+  }
+
+  function closeCancelModal() {
+    if (isCancelling) return;
+    if (cancelBookingModal) {
+      cancelBookingModal.hidden = true;
+      cancelBookingModal.setAttribute('aria-hidden', 'true');
+    }
+    activeCancelBooking = null;
+    isCancelModalOpen = false;
+  }
+
+  function validateCancelReason() {
+    if (!cancelBookingReasonInput) return false;
+    const rawVal = cancelBookingReasonInput.value;
+    const trimmed = rawVal.trim();
+    const len = rawVal.length;
+
+    if (cancelReasonCharCount) {
+      cancelReasonCharCount.textContent = `${len}/500 ký tự`;
+    }
+
+    if (trimmed.length === 0) {
+      if (cancelReasonError) {
+        cancelReasonError.hidden = true;
+        cancelReasonError.textContent = '';
+      }
+      if (cancelModalConfirmBtn) cancelModalConfirmBtn.disabled = true;
+      return false;
+    }
+
+    if (trimmed.length < 5) {
+      if (cancelReasonError) {
+        cancelReasonError.hidden = false;
+        cancelReasonError.textContent = 'Lý do hủy phải có từ 5 đến 500 ký tự.';
+      }
+      if (cancelModalConfirmBtn) cancelModalConfirmBtn.disabled = true;
+      return false;
+    }
+
+    if (cancelReasonError) {
+      cancelReasonError.hidden = true;
+      cancelReasonError.textContent = '';
+    }
+    if (cancelModalConfirmBtn) cancelModalConfirmBtn.disabled = false;
+    return true;
+  }
+
+  async function handleConfirmCancel() {
+    if (isCancelling || !activeCancelBooking) return;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showToast('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'error');
+      return;
+    }
+
+    const reason = cancelBookingReasonInput ? cancelBookingReasonInput.value.trim() : '';
+    if (reason.length < 5 || reason.length > 500) {
+      if (cancelReasonError) {
+        cancelReasonError.hidden = false;
+        cancelReasonError.textContent = 'Lý do hủy phải có từ 5 đến 500 ký tự.';
+      }
+      if (cancelModalConfirmBtn) cancelModalConfirmBtn.disabled = true;
+      return;
+    }
+
+    isCancelling = true;
+    if (cancelBookingReasonInput) cancelBookingReasonInput.disabled = true;
+    if (cancelModalCloseBtn) cancelModalCloseBtn.disabled = true;
+    if (cancelModalCancelBtn) cancelModalCancelBtn.disabled = true;
+    if (cancelModalConfirmBtn) {
+      cancelModalConfirmBtn.disabled = true;
+      cancelModalConfirmBtn.innerHTML = '<span class="btn-text">Đang xử lý...</span>';
+    }
+    if (cancelReasonError) {
+      cancelReasonError.hidden = true;
+      cancelReasonError.textContent = '';
+    }
+
+    try {
+      const response = await fetch(`/api/bookings/${activeCancelBooking.bookingId}/cancel`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result.success) {
+        const errorMsg = result.message || 'Không thể hủy đơn đặt lịch lúc này. Vui lòng thử lại sau.';
+        if (cancelReasonError) {
+          cancelReasonError.hidden = false;
+          cancelReasonError.textContent = errorMsg;
+        } else {
+          showToast(errorMsg, 'error');
+        }
+
+        if (cancelBookingReasonInput) cancelBookingReasonInput.disabled = false;
+        if (cancelModalCloseBtn) cancelModalCloseBtn.disabled = false;
+        if (cancelModalCancelBtn) cancelModalCancelBtn.disabled = false;
+        if (cancelModalConfirmBtn) {
+          cancelModalConfirmBtn.disabled = false;
+          cancelModalConfirmBtn.innerHTML = '<span class="btn-text">Xác nhận hủy</span>';
+        }
+        isCancelling = false;
+        return;
+      }
+
+      // Hủy thành công:
+      isCancelling = false;
+      closeCancelModal();
+      showToast(result.message || 'Đã hủy đơn đặt lịch thành công.', 'success');
+      await loadBookings();
+    } catch (err) {
+      console.error('Lỗi khi gửi yêu cầu hủy lịch:', err);
+      const netMsg = err.message || 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.';
+      if (cancelReasonError) {
+        cancelReasonError.hidden = false;
+        cancelReasonError.textContent = netMsg;
+      } else {
+        showToast(netMsg, 'error');
+      }
+
+      if (cancelBookingReasonInput) cancelBookingReasonInput.disabled = false;
+      if (cancelModalCloseBtn) cancelModalCloseBtn.disabled = false;
+      if (cancelModalCancelBtn) cancelModalCancelBtn.disabled = false;
+      if (cancelModalConfirmBtn) {
+        cancelModalConfirmBtn.disabled = false;
+        cancelModalConfirmBtn.innerHTML = '<span class="btn-text">Xác nhận hủy</span>';
+      }
+      isCancelling = false;
+    }
   }
 
   /* ==========================================================================
@@ -556,6 +814,50 @@
         loadBookings();
       });
     }
+
+    // Event Delegation cho nút "✕ Hủy lịch" (.btn-cancel-booking)
+    document.addEventListener('click', (e) => {
+      const cancelBtn = e.target.closest('.btn-cancel-booking');
+      if (cancelBtn) {
+        const bookingId = cancelBtn.dataset.bookingId;
+        if (bookingId) {
+          openCancelModal(bookingId);
+        }
+      }
+    });
+
+    // Sự kiện trong Modal Hủy Lịch
+    if (cancelBookingReasonInput) {
+      cancelBookingReasonInput.addEventListener('input', validateCancelReason);
+    }
+
+    if (cancelModalConfirmBtn) {
+      cancelModalConfirmBtn.addEventListener('click', handleConfirmCancel);
+    }
+
+    if (cancelModalCloseBtn) {
+      cancelModalCloseBtn.addEventListener('click', closeCancelModal);
+    }
+
+    if (cancelModalCancelBtn) {
+      cancelModalCancelBtn.addEventListener('click', closeCancelModal);
+    }
+
+    // Đóng modal khi bấm vào vùng backdrop bên ngoài
+    if (cancelBookingModal) {
+      cancelBookingModal.addEventListener('click', (e) => {
+        if (e.target === cancelBookingModal) {
+          closeCancelModal();
+        }
+      });
+    }
+
+    // Đóng modal khi nhấn phím Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isCancelModalOpen) {
+        closeCancelModal();
+      }
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
